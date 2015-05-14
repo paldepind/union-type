@@ -52,7 +52,7 @@ var areaOfCircle = Type.case({
 ```
 
 Since `Type.case` is curried you can create a general `area` function by
-not passign the second parameter to `Type.case`.
+not passing the second parameter to `Type.case`.
 
 ```javascript
 var area = Type.case({
