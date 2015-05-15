@@ -15,17 +15,34 @@ describe('union type', function() {
     assert.equal(10, point[1]);
   });
   it('throws if field value does not pass validator', function() {
-    //var Point = Type({Point: ['x', 'y']});
     var Point = Type({Point: [isNumber, isNumber]});
     assert.throws(function() {
       Point.Point('lol', 10);
     }, /Point/);
+  });
+  it('checks for types with instanceof', function() {
+    var Name = Type({Name: [String]});
+    var name = Name.Name('Thumper');
+    assert.equal(name[0], 'Thumper');
+  });
+  it('throws on incorrect primitive', function() {
+    var Name = Type({Name: [String]});
+    assert.throws(function() {
+      Name.Name(12);
+    }, /Name/);
   });
   it('nest types', function() {
     var Point = Type({Point: [isNumber, isNumber]});
     var Shape = Type({Circle: [isNumber, Point],
                       Rectangle: [Point, Point]});
     var square = Shape.Rectangle(Point.Point(1, 1), Point.Point(4, 4));
+  });
+  it('throws if field value is not of correct type', function() {
+    var Length = Type({Length: [isNumber]});
+    var Shape = Type({Rectangle: [Length, Length]});
+    assert.throws(function() {
+      Shape.Rectangle(1, Length.Length(12));
+    }, /Rectangle/);
   });
   it('case', function() {
     var Action = Type({Translate: [isNumber, isNumber], Rotate: [isNumber]});

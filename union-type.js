@@ -1,11 +1,29 @@
 var R = require('ramda');
 
+function isString(s) { return typeof s === 'string'; }
+function isNumber(n) { return typeof n === 'number'; }
+function isObject(value) {
+  var type = typeof value;
+  return type == 'function' || (!!value && type == 'object');
+}
+function isFunction(f) { return typeof f === 'function'; }
+var isArray = Array.isArray || function(a) { return 'length' in a; };
+
+function mapConstrToFn(constr) {
+  return constr === String   ? isString
+       : constr === Number   ? isNumber
+       : constr === Object   ? isObject
+       : constr === Function ? isFunction
+                             : constr;
+}
+
 function Constructor(group, name, validators) {
+  validators = validators.map(mapConstrToFn);
   var constructor = R.curryN(validators.length, function() {
-    var val = [];
+    var val = [], v, validator;
     for (var i = 0; i < arguments.length; ++i) {
-      var v = arguments[i];
-      var validator = validators[i];
+      v = arguments[i];
+      validator = validators[i];
       if ((typeof validator === 'function' && validator(v)) ||
           (v !== undefined && v !== null && v.of === validator)) {
         val[i] = arguments[i];
