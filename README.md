@@ -1,8 +1,5 @@
-# silly-type
-A JavaScript library for defining and using something that resembles
-data types
-
-Implementation is currently 40 SLOC.
+# union-type-js
+A small JavaScript library for defining and using union types.
 
 # Usage
 

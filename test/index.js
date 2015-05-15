@@ -1,9 +1,9 @@
 var assert = require('assert');
-var Type = require('../silly-type.js');
+var Type = require('../union-type.js');
 
 function isNumber(n) { return typeof n === 'number'; }
 
-describe('silly type', function() {
+describe('union type', function() {
   it('returns type with constructors', function() {
     var Point = Type({Point: [isNumber, isNumber]});
     assert.equal('function', typeof Point.Point);
