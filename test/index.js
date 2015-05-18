@@ -20,20 +20,32 @@ describe('union type', function() {
       Point.Point('lol', 10);
     }, /Point/);
   });
-  it('checks for types with instanceof', function() {
-    var Name = Type({Name: [String]});
-    var name = Name.Name('Thumper');
-    assert.equal(name[0], 'Thumper');
-  });
-  it('throws on incorrect primitive', function() {
-    var Name = Type({Name: [String]});
-    assert.throws(function() {
-      Name.Name(12);
-    }, /Name/);
+  describe('primitives', function() {
+    it('accepts strings with primitive constructors', function() {
+      var Name = Type({Name: [String]});
+      var name = Name.Name('Thumper');
+      assert.equal(name[0], 'Thumper');
+    });
+    it('throws on strings with primitive constructors', function() {
+      var Name = Type({Name: [String]});
+      assert.throws(function() {
+        var name = Name.Name(12);
+      }, /Name/);
+    });
+    it('accepts number with primitive constructors', function() {
+      var Age = Type({Age: [Number]});
+      assert.equal(Age.Age(12)[0], 12);
+    });
+    it('throws on number with primitive constructors', function() {
+      var Age = Type({Age: [Number]});
+      assert.throws(function() {
+        Age.Age('12');
+      }, /wrong value/);
+    });
   });
   it('nest types', function() {
     var Point = Type({Point: [isNumber, isNumber]});
-    var Shape = Type({Circle: [isNumber, Point],
+    var Shape = Type({Circle: [Number, Point],
                       Rectangle: [Point, Point]});
     var square = Shape.Rectangle(Point.Point(1, 1), Point.Point(4, 4));
   });
@@ -44,18 +56,23 @@ describe('union type', function() {
       Shape.Rectangle(1, Length.Length(12));
     }, /Rectangle/);
   });
-  it('case', function() {
+  describe('case', function() {
     var Action = Type({Translate: [isNumber, isNumber], Rotate: [isNumber]});
-    var action = Action.Translate(10, 8);
-    var sum = Type.case({
+    var sum = Action.case({
       Translate: function(x, y) {
-        assert.equal(x, 10);
-        assert.equal(y, 8);
         return x + y;
       },
       Rotate: function(n) { return n; },
     });
-    assert.equal(sum(Action.Translate(10, 8)), 18);
-    assert.equal(sum(Action.Rotate(30)), 30);
+    it('works on types', function() {
+      assert.equal(sum(Action.Translate(10, 8)), 18);
+      assert.equal(sum(Action.Rotate(30)), 30);
+    });
+    it('throws on incorrect type', function() {
+      var AnotherAction = Type({Translate: [Number]});
+      assert.throws(function() {
+        sum(AnotherAction.Translate(12));
+      }, /wrong type/);
+    });
   });
 });
