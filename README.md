@@ -1,15 +1,13 @@
 # union-type-js
 A small JavaScript library for defining and using union types.
 
-# What & Why
-
-Union types are a way to group different types together. You can think of them
+Union types are a way to group different values together. You can think of them
 as a powerful form of enums with the possibility to have additional data
 associated with the possible values.
 
-# Usage
+## Usage
 
-## Defining a union type
+### Defining a union type
 
 union-type-js exports a single function `Type`. Union types are created by
 passing the `Type` function a definition object.
@@ -47,7 +45,7 @@ The values of a type can also have no fields at all.
 
 var NotifySetting = Type({Mute: [], Vibrate: [], Sound: [Number]});
 
-## Constructing a union type
+### Constructing a union type
 
 The `Type` function returns an object with constructor function for the
 different specified values. Thus, once you've defined a union type like this
@@ -76,7 +74,7 @@ var p = Point.Point('bad', 4);
 // throws TypeError: wrong value bad passed to location 0 in Point
 ```
 
-## Switching on union types
+### Switching on union types
 
 Every created type has a `case` function available along with its value
 constructors. `case` can be used as a control structure for handling the
@@ -133,7 +131,7 @@ var area = Shape.case({
 });
 ```
 
-## Extracting fields from a union type
+### Extracting fields from a union type
 
 The value of a union type is an array. This makes it easy to access the different fields.
 
@@ -152,7 +150,7 @@ consicely extract all fields of a type.
 var [name, age, favoriteShape] = person;
 ```
 
-# Author & license
+## Author & license
 
 union-type-js was made by [paldepind](https://twitter.com/paldepind) and is
 released under the MIT license. I hope you find it useful.
