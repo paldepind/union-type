@@ -1,0 +1,30 @@
+{
+  "name": "union-type-js",
+  "version": "0.1.0",
+  "description": "Union types for JavaScript",
+  "main": "union-type.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "ramda": "^0.14.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paldepind/union-type-js.git"
+  },
+  "keywords": [
+    "union",
+    "type"
+  ],
+  "author": "Simon Friis Vindum",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/paldepind/union-type-js/issues"
+  },
+  "homepage": "https://github.com/paldepind/union-type-js#readme"
+}
