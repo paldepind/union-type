@@ -3,6 +3,8 @@ var Type = require('../union-type.js');
 
 function isNumber(n) { return typeof n === 'number'; }
 
+function T() { return true; };
+
 describe('union type', function() {
   it('returns type with constructors', function() {
     var Point = Type({Point: [isNumber, isNumber]});
@@ -73,6 +75,22 @@ describe('union type', function() {
       assert.throws(function() {
         sum(AnotherAction.Translate(12));
       }, /wrong type/);
+    });
+  });
+  describe('recursive data types', function() {
+    var List = Type({Nil: [], Cons: [T, List]});
+    it('can create single element list', function() {
+      var list = List.Cons(1, List.Nil());
+    });
+    it('can get head', function() {
+      var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())));
+      function head(list) { return list[0]; }
+      function tail(list) { return list[1]; }
+      var toString = List.case({
+        Cons: function(head, tail) { return head + ' : ' + toString(tail); },
+        Nil: function() { return 'Nil'; }
+      });
+      assert.equal(toString(list), '1 : 2 : 3 : Nil');
     });
   });
 });

@@ -1,11 +1,22 @@
 # union-type-js
+
 A small JavaScript library for defining and using union types.
 
 Union types are a way to group different values together. You can think of them
 as a powerful form of enums with the possibility to have additional data
 associated with the possible values.
 
-## Usage
+## Table of contents
+
+* [Tutorial](#tutorial)
+  * [Defining a union type](#defining-a-union-type)
+  * [Constructing a union type](#constructing-a-union-type)
+  * [Switching on union types](#switching-on-union-types)
+  * [Extracting fields from a union type](#extracting-fields-from-a-union-type)
+  * [Recursive union types](recursive-union-types)
+* [Author & license](author--license)
+
+## Tutorial
 
 ### Defining a union type
 
@@ -148,6 +159,29 @@ consicely extract all fields of a type.
 
 ```javascript
 var [name, age, favoriteShape] = person;
+```
+
+### Recursive union types
+
+It is possible to define recursive union types. In the example below `List` is
+being used in it's own definition, thus it is still `undefined` when being
+passed to `Type`. Therefore `Type` interprets `undefined` as being a recursive
+invocation of the type currently being defined.
+
+```javascript
+var List = Type({Nil: [], Cons: [R.T, List]});
+```
+
+We can write a function that recursively prints the content of our cons list.
+
+```javascript
+var toString = List.case({
+  Cons: (head, tail) => head + ' : ' + toString(tail),
+  Nil: () => 'Nil',
+});
+
+var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())));
+console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 ```
 
 ## Author & license

@@ -9,17 +9,18 @@ function isObject(value) {
 function isFunction(f) { return typeof f === 'function'; }
 var isArray = Array.isArray || function(a) { return 'length' in a; };
 
-function mapConstrToFn(constr) {
-  return constr === String   ? isString
-       : constr === Number   ? isNumber
-       : constr === Object   ? isObject
-       : constr === Array    ? isArray
-       : constr === Function ? isFunction
-                             : constr;
-}
+var mapConstrToFn = curryN(2, function(group, constr) {
+  return constr === String    ? isString
+       : constr === Number    ? isNumber
+       : constr === Object    ? isObject
+       : constr === Array     ? isArray
+       : constr === Function  ? isFunction
+       : constr === undefined ? group
+                              : constr;
+});
 
 function Constructor(group, name, validators) {
-  validators = validators.map(mapConstrToFn);
+  validators = validators.map(mapConstrToFn(group));
   var constructor = curryN(validators.length, function() {
     var val = [], v, validator;
     for (var i = 0; i < arguments.length; ++i) {
