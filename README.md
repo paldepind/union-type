@@ -102,7 +102,7 @@ var advancePlayer = function(move, player) {
     Right: function() { return {x: player.x + 1, y: player.y}; },
     Down: function() { return {x: player.x, y: player.y + 1}; },
     Left: function() { return {x: player.x - 1, y: player.y}; },
-  });
+  }, move);
 };
 ```
 
@@ -115,7 +115,7 @@ const advancePlayer = (move, player) =>
     Right: () => {x: player.x + 1, y: player.y},
     Down: () => {x: player.x, y: player.y + 1},
     Left: () => {x: player.x - 1, y: player.y},
-  });
+  }, move);
 ```
 
 `case` will extract the fields of a value and pass them in order to the
