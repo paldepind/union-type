@@ -76,6 +76,23 @@ describe('union type', function() {
         sum(AnotherAction.Translate(12));
       }, /wrong type/);
     });
+    it('calls back to placeholder', function() {
+      var called = false;
+      var fn = Action.case({
+        Translate: function() { throw new Error(); },
+        _: function() { called = true; }
+      });
+      fn(Action.Rotate(30));
+    });
+    it('throws if no case handler found', function() {
+      var called = false;
+      var fn = Action.case({
+        Translate: function() { throw new Error(); },
+      });
+      assert.throws(function() {
+        fn(Action.Rotate(30));
+      }, /unhandled/);
+    });
   });
   describe('recursive data types', function() {
     var List = Type({Nil: [], Cons: [T, List]});

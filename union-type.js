@@ -42,7 +42,14 @@ function Constructor(group, name, validators) {
 
 var typeCase = curryN(3, function(type, cases, action) {
   if (type !== action.of) throw new TypeError('wrong type passed to case');
-  return cases[action.name].apply(undefined, action);
+  var name = action.name in cases ? action.name
+           : '_' in cases         ? '_'
+                                  : undefined;
+  if (name === undefined) {
+    throw new Error('unhandled value passed to case');
+  } else {
+    return cases[name].apply(undefined, action);
+  }
 });
 
 function Type(desc) {

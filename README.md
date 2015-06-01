@@ -142,6 +142,17 @@ var area = Shape.case({
 });
 ```
 
+As a catch all you can supply a property with the key `_` to case. When a type
+doesn't match another handler `_` will be used.
+
+```javascript
+const advancePlayerOnlyUp = (move, player) =>
+  Move.case({
+    Up: () => {x: player.x, y: player.y - 1},
+    _: () => player,
+  });
+```
+
 ### Extracting fields from a union type
 
 The value of a union type is an array. This makes it easy to access the different fields.
