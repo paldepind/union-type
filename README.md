@@ -25,7 +25,7 @@ passing the `Type` function a definition object.
 
 ```javascript
 function isNumber(n) { return typeof n === 'number'; }
-var Point = Type({Point: [Number, Number]});
+var Point = Type({Point: [isNumber, isNumber]});
 ```
 
 The keys of the object are the names of the values that the type can have. The
