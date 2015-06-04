@@ -104,9 +104,16 @@ describe('union type', function() {
       },
       Sort: function(list) { return list.sort(); },
     });
-    assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
-    assert.deepEqual(update(Modification.Remove(2), [1, 2, 3, 4]), [1, 3, 4]);
-    assert.deepEqual(update(Modification.Sort(), [1, 3, 2]), [1, 2, 3]);
+    it('passes argument along to case functions', function() {
+      assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
+      assert.deepEqual(update(Modification.Remove(2), [1, 2, 3, 4]), [1, 3, 4]);
+      assert.deepEqual(update(Modification.Sort(), [1, 3, 2]), [1, 2, 3]);
+    });
+    it('partially applied to same action does not affect each other', function() {
+      var append3 = update(Modification.Append(3));
+      assert.deepEqual(append3([1, 2]), [1, 2, 3]);
+      assert.deepEqual(append3([5, 4]), [5, 4, 3]);
+    });
   });
   describe('recursive data types', function() {
     var List = Type({Nil: [], Cons: [T, List]});

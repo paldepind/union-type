@@ -48,8 +48,7 @@ function rawCase(type, cases, action, arg) {
   if (name === undefined) {
     throw new Error('unhandled value passed to case');
   } else {
-    if (arg !== undefined) action.push(arg);
-    return cases[name].apply(undefined, action);
+    return cases[name].apply(undefined, arg !== undefined ? action.concat([arg]) : action);
   }
 }
 
