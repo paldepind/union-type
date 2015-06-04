@@ -40,7 +40,7 @@ function Constructor(group, name, validators) {
   return constructor;
 }
 
-var typeCase = curryN(3, function(type, cases, action) {
+function rawCase(type, cases, action, arg) {
   if (type !== action.of) throw new TypeError('wrong type passed to case');
   var name = action.name in cases ? action.name
            : '_' in cases         ? '_'
@@ -48,9 +48,13 @@ var typeCase = curryN(3, function(type, cases, action) {
   if (name === undefined) {
     throw new Error('unhandled value passed to case');
   } else {
+    if (arg !== undefined) action.push(arg);
     return cases[name].apply(undefined, action);
   }
-});
+}
+
+var typeCase = curryN(3, rawCase);
+var caseOn = curryN(4, rawCase);
 
 function Type(desc) {
   var obj = {};
@@ -58,6 +62,7 @@ function Type(desc) {
     obj[key] = Constructor(obj, key, desc[key]);
   }
   obj.case = typeCase(obj);
+  obj.caseOn = caseOn(obj);
   return obj;
 }
 

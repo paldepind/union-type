@@ -94,6 +94,20 @@ describe('union type', function() {
       }, /unhandled/);
     });
   });
+  describe('caseOn', function() {
+    var Modification = Type({Append: [Number], Remove: [Number], Sort: []});
+    var update = Modification.caseOn({
+      Append: function(number, list) { return list.concat([number]); },
+      Remove: function(number, list) {
+        var idx = list.indexOf(number);
+        return list.slice(0, idx).concat(list.slice(idx+1));
+      },
+      Sort: function(list) { return list.sort(); },
+    });
+    assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
+    assert.deepEqual(update(Modification.Remove(2), [1, 2, 3, 4]), [1, 3, 4]);
+    assert.deepEqual(update(Modification.Sort(), [1, 3, 2]), [1, 2, 3]);
+  });
   describe('recursive data types', function() {
     var List = Type({Nil: [], Cons: [T, List]});
     it('can create single element list', function() {
