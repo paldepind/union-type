@@ -119,8 +119,7 @@ const advancePlayer = (move, player) =>
 ```
 
 `case` will extract the fields of a value and pass them in order to the
-relevant function. A function to calculate the area of a shape could for
-instance look like this.
+relevant function. A function to calculate the area of a shape could, for instance, look like this.
 
 ```javascript
 var Shape = Type({Circle: [Number, Point],
@@ -129,7 +128,7 @@ var area = (shape) =>
   Shape.case({
     Circle: (radius, _) => Math.PI * radius * radius,
     Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[0])
-  }, circle);
+  }, shape);
 ```
 
 `Type.case` is curried so we could have created the above function simply by
@@ -165,8 +164,8 @@ var age = person[1];
 var favoriteShape = person[2];
 ```
 
-Using the destructuring assignment in ECMAScript 6 it is possible to very
-consicely extract all fields of a type.
+Using the destructuring assignment in ECMAScript 6 it is possible to
+concisely extract all fields of a type.
 
 ```javascript
 var [name, age, favoriteShape] = person;
@@ -174,7 +173,7 @@ var [name, age, favoriteShape] = person;
 
 ### Recursive union types
 
-It is possible to define recursive union types. In the example below `List` is
+It is possible to define recursive union types. In the example below, `List` is
 being used in it's own definition, thus it is still `undefined` when being
 passed to `Type`. Therefore `Type` interprets `undefined` as being a recursive
 invocation of the type currently being defined.
