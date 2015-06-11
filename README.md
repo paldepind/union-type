@@ -119,7 +119,8 @@ const advancePlayer = (move, player) =>
 ```
 
 `case` will extract the fields of a value and pass them in order to the
-relevant function. A function to calculate the area of a shape could, for instance, look like this.
+relevant function. A function to calculate the area of a shape could, for
+instance, look like this.
 
 ```javascript
 var Shape = Type({Circle: [Number, Point],
