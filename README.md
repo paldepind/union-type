@@ -1,4 +1,4 @@
-# union-type-js
+# union-type
 
 A small JavaScript library for defining and using union types.
 
@@ -20,7 +20,7 @@ associated with the possible values.
 
 ### Defining a union type
 
-union-type-js exports a single function `Type`. Union types are created by
+union-type exports a single function `Type`. Union types are created by
 passing the `Type` function a definition object.
 
 ```javascript
@@ -35,7 +35,7 @@ constructed the values passed to the constructor will have to pass the
 validator predicate.
 
 Alternatively the fields can be specified by one of the standard built-in
-constructors `Number`, `String`, `Object`, `Array` or `Function`. union-type-js
+constructors `Number`, `String`, `Object`, `Array` or `Function`. union-type
 will detect these constructors and convert them to matching validator functions.
 Thus the above example is equivelant to this:
 
@@ -111,10 +111,10 @@ Or with ECMAScript 6 syntax.
 ```javascript
 const advancePlayer = (move, player) =>
   Move.case({
-    Up: () => {x: player.x, y: player.y - 1},
-    Right: () => {x: player.x + 1, y: player.y},
-    Down: () => {x: player.x, y: player.y + 1},
-    Left: () => {x: player.x - 1, y: player.y},
+    Up: () => ({x: player.x, y: player.y - 1}),
+    Right: () => ({x: player.x + 1, y: player.y}),
+    Down: () => ({x: player.x, y: player.y + 1}),
+    Left: () => ({x: player.x - 1, y: player.y}),
   }, move);
 ```
 
@@ -132,7 +132,7 @@ var area = (shape) =>
   }, shape);
 ```
 
-`Type.case` is curried so we could have created the above function simply by
+`case` is curried so we could have created the above function simply by
 not passing the second parameter to `case`.
 
 ```javascript
@@ -148,14 +148,15 @@ doesn't match another handler `_` will be used.
 ```javascript
 const advancePlayerOnlyUp = (move, player) =>
   Move.case({
-    Up: () => {x: player.x, y: player.y - 1},
+    Up: () => ({x: player.x, y: player.y - 1}),
     _: () => player,
   });
 ```
 
 ### Extracting fields from a union type
 
-The value of a union type is an array. This makes it easy to access the different fields.
+The value of a union type is an array. This makes it easy to access the
+different fields.
 
 ```javascript
 var Person = Type({Person: [String, Number, Shape]});
@@ -197,6 +198,6 @@ console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 
 ## Author & license
 
-union-type-js was made by [paldepind](https://twitter.com/paldepind) and is
+union-type was made by [paldepind](https://twitter.com/paldepind) and is
 released under the MIT license. I hope you find it useful.
 
