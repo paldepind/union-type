@@ -37,7 +37,7 @@ validator predicate.
 Alternatively the fields can be specified by one of the standard built-in
 constructors `Number`, `String`, `Object`, `Array` or `Function`. union-type
 will detect these constructors and convert them to matching validator functions.
-Thus the above example is equivelant to this:
+Thus the above example is equivalent to this:
 
 ```javascript
 var Point = Type({Point: [Number, Number]});
@@ -54,7 +54,9 @@ var Shape = Type({
 
 The values of a type can also have no fields at all.
 
+```javascript
 var NotifySetting = Type({Mute: [], Vibrate: [], Sound: [Number]});
+```
 
 ### Constructing a union type
 
