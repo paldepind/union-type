@@ -144,6 +144,22 @@ var area = Shape.case({
 });
 ```
 
+`caseOn` is similar to `case`, but allows passing additional data directly
+into each case function. With `caseOn`, the `advancePlayer` example from
+before could be written in "point-free style" like this:
+
+```javascript
+// No need to wrap this into a function that passes `player`
+const advancePlayer = Move.caseOn({
+  Up: (player) => ({x: player.x, y: player.y - 1}),
+  Right: (player) => ({x: player.x + 1, y: player.y}),
+  Down: (player) => ({x: player.x, y: player.y + 1}),
+  Left: (player) => ({x: player.x - 1, y: player.y})
+});
+
+advancePlayer(Move.Up(), player);
+```
+
 As a catch all you can supply a property with the key `_` to case. When a type
 doesn't match another handler `_` will be used.
 
