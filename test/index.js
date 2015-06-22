@@ -3,7 +3,7 @@ var Type = require('../union-type.js');
 
 function isNumber(n) { return typeof n === 'number'; }
 
-function T() { return true; };
+function T() { return true; }
 
 describe('union type', function() {
   it('returns type with constructors', function() {

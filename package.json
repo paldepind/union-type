@@ -7,11 +7,14 @@
     "test": "test"
   },
   "dependencies": {
-    "ramda": "^0.14.0"
+    "ramda": "^0.15.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "browserify": "^10.2.4"
+  },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build": "browserify -s unionType ./union-type.js -o dist/union-type.js"
   },
   "repository": {
     "type": "git",
