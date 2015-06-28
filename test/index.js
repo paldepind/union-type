@@ -44,6 +44,20 @@ describe('union type', function() {
         Age.Age('12');
       }, /wrong value/);
     });
+    it('accepts boolean true with primitive constructors', function() {
+      var Exists = Type({Exists: [Boolean]});
+      assert.equal(Exists.Exists(true)[0], true);
+    });
+    it('accepts boolean false with primitive constructors', function() {
+      var Exists = Type({Exists: [Boolean]});
+      assert.equal(Exists.Exists(false)[0], false);
+    });
+    it('throws on boolean with primitive constructors', function() {
+      var Exists = Type({Exists: [Boolean]});
+      assert.throws(function() {
+        Exists.Exists('12');
+      }, /wrong value/);
+    });
   });
   it('nest types', function() {
     var Point = Type({Point: [isNumber, isNumber]});

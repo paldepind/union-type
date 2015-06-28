@@ -2,6 +2,7 @@ var curryN = require('ramda/src/curryN');
 
 function isString(s) { return typeof s === 'string'; }
 function isNumber(n) { return typeof n === 'number'; }
+function isBoolean(b) { return typeof b === 'boolean'; }
 function isObject(value) {
   var type = typeof value;
   return !!value && (type == 'object' || type == 'function');
@@ -12,6 +13,7 @@ var isArray = Array.isArray || function(a) { return 'length' in a; };
 var mapConstrToFn = curryN(2, function(group, constr) {
   return constr === String    ? isString
        : constr === Number    ? isNumber
+       : constr === Boolean   ? isBoolean
        : constr === Object    ? isObject
        : constr === Array     ? isArray
        : constr === Function  ? isFunction
