@@ -10,7 +10,7 @@ function isObject(value) {
 function isFunction(f) { return typeof f === 'function'; }
 var isArray = Array.isArray || function(a) { return 'length' in a; };
 
-var mapConstrToFn = curryN(2, function(group, constr) {
+var mapConstrToFn = function(group, constr) {
   return constr === String    ? isString
        : constr === Number    ? isNumber
        : constr === Boolean   ? isBoolean
@@ -19,27 +19,29 @@ var mapConstrToFn = curryN(2, function(group, constr) {
        : constr === Function  ? isFunction
        : constr === undefined ? group
                               : constr;
-});
+};
 
 function Constructor(group, name, validators) {
-  validators = validators.map(mapConstrToFn(group));
-  var constructor = curryN(validators.length, function() {
-    var val = [], v, validator;
-    for (var i = 0; i < arguments.length; ++i) {
-      v = arguments[i];
-      validator = validators[i];
-      if ((typeof validator === 'function' && validator(v)) ||
-          (v !== undefined && v !== null && v.of === validator)) {
-        val[i] = arguments[i];
-      } else {
-        throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
+  return curryN(validators.length, function() {
+    var val = [], validator, i, v;
+    if (Type.disableChecking === true) {
+      for (i = 0; i < arguments.length; ++i) val[i] = arguments[i];
+    } else {
+      for (i = 0; i < arguments.length; ++i) {
+        v = arguments[i];
+        validator = mapConstrToFn(group, validators[i]);
+        if ((typeof validator === 'function' && validator(v)) ||
+            (v !== undefined && v !== null && v.of === validator)) {
+          val[i] = v;
+        } else {
+          throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
+        }
       }
     }
     val.of = group;
     val.name = name;
     return val;
   });
-  return constructor;
 }
 
 function rawCase(type, cases, action, arg) {
@@ -66,5 +68,7 @@ function Type(desc) {
   obj.caseOn = caseOn(obj);
   return obj;
 }
+
+Type.disableChecking = process !== undefined && process.env.NODE_ENV === 'production';
 
 module.exports = Type;
