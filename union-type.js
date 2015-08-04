@@ -1,37 +1,54 @@
 var curryN = require('ramda/src/curryN');
 
-function isString(s) { return typeof s === 'string'; }
-function isNumber(n) { return typeof n === 'number'; }
-function isBoolean(b) { return typeof b === 'boolean'; }
-function isObject(value) {
-  var type = typeof value;
-  return !!value && (type == 'object' || type == 'function');
-}
-function isFunction(f) { return typeof f === 'function'; }
-var isArray = Array.isArray || function(a) { return 'length' in a; };
+if (process === undefined || process.env.NODE_ENV === 'development') {
+  function isString(s) {
+    return typeof s === 'string';
+  }
 
-var mapConstrToFn = function(group, constr) {
-  return constr === String    ? isString
-       : constr === Number    ? isNumber
-       : constr === Boolean   ? isBoolean
-       : constr === Object    ? isObject
-       : constr === Array     ? isArray
-       : constr === Function  ? isFunction
-       : constr === undefined ? group
-                              : constr;
-};
+  function isNumber(n) {
+    return typeof n === 'number';
+  }
+
+  function isBoolean(b) {
+    return typeof b === 'boolean';
+  }
+
+  function isObject(value) {
+    var type = typeof value;
+    return !!value && (type == 'object' || type == 'function');
+  }
+
+  function isFunction(f) {
+    return typeof f === 'function';
+  }
+
+  var isArray = Array.isArray || function (a) {
+      return 'length' in a;
+    };
+
+  var mapConstrToFn = function (group, constr) {
+    return constr === String ? isString
+      : constr === Number ? isNumber
+      : constr === Boolean ? isBoolean
+      : constr === Object ? isObject
+      : constr === Array ? isArray
+      : constr === Function ? isFunction
+      : constr === undefined ? group
+      : constr;
+  };
+}
 
 function Constructor(group, name, validators) {
   return curryN(validators.length, function() {
     var val = [], validator, i, v;
-    if (Type.disableChecking === true) {
+    if (process.env.NODE_ENV === 'production') {
       for (i = 0; i < arguments.length; ++i) val[i] = arguments[i];
     } else {
       for (i = 0; i < arguments.length; ++i) {
         v = arguments[i];
         validator = mapConstrToFn(group, validators[i]);
         if ((typeof validator === 'function' && validator(v)) ||
-            (v !== undefined && v !== null && v.of === validator)) {
+          (v !== undefined && v !== null && v.of === validator)) {
           val[i] = v;
         } else {
           throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
@@ -47,8 +64,8 @@ function Constructor(group, name, validators) {
 function rawCase(type, cases, action, arg) {
   if (type !== action.of) throw new TypeError('wrong type passed to case');
   var name = action.name in cases ? action.name
-           : '_' in cases         ? '_'
-                                  : undefined;
+    : '_' in cases         ? '_'
+    : undefined;
   if (name === undefined) {
     throw new Error('unhandled value passed to case');
   } else {
@@ -69,6 +86,5 @@ function Type(desc) {
   return obj;
 }
 
-Type.disableChecking = process !== undefined && process.env.NODE_ENV === 'production';
-
 module.exports = Type;
+
