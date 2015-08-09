@@ -1,36 +1,40 @@
 var curryN = require('ramda/src/curryN');
 
-function isString(s) { return typeof s === 'string'; }
-function isNumber(n) { return typeof n === 'number'; }
-function isBoolean(b) { return typeof b === 'boolean'; }
-function isObject(value) {
-  var type = typeof value;
-  return !!value && (type == 'object' || type == 'function');
-}
-function isFunction(f) { return typeof f === 'function'; }
-var isArray = Array.isArray || function(a) { return 'length' in a; };
+if (process.env.NODE_ENV !== 'production') {
+  var isString = function(s) { return typeof s === 'string'; };
+  var isNumber = function(n) { return typeof n === 'number'; };
+  var isBoolean = function(b) { return typeof b === 'boolean'; };
+  var isObject = function(value) {
+    var type = typeof value;
+    return !!value && (type == 'object' || type == 'function');
+  };
+  var isFunction = function(f) { return typeof f === 'function'; };
+  var isArray = Array.isArray || function(a) { return 'length' in a; };
 
-var mapConstrToFn = function(group, constr) {
-  return constr === String    ? isString
-       : constr === Number    ? isNumber
-       : constr === Boolean   ? isBoolean
-       : constr === Object    ? isObject
-       : constr === Array     ? isArray
-       : constr === Function  ? isFunction
-       : constr === undefined ? group
-                              : constr;
-};
+  var mapConstrToFn = function(group, constr) {
+    return constr === String    ? isString
+         : constr === Number    ? isNumber
+         : constr === Boolean   ? isBoolean
+         : constr === Object    ? isObject
+         : constr === Array     ? isArray
+         : constr === Function  ? isFunction
+         : constr === undefined ? group
+                                : constr;
+  };
 
-function validate(group, validators, name, args) {
-  var validator, v, i;
-  for (i = 0; i < args.length; ++i) {
-    v = args[i];
-    validator = mapConstrToFn(group, validators[i]);
-    if ((typeof validator === 'function' && validator(v)) || validator.isPrototypeOf(v)) {
-    } else {
-      throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
+  var numToStr = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+
+  var validate = function(group, validators, name, args) {
+    var validator, v, i;
+    for (i = 0; i < args.length; ++i) {
+      v = args[i];
+      validator = mapConstrToFn(group, validators[i]);
+      if (process.env.NODE_ENV !== 'production' && !validator.isPrototypeOf(v) &&
+          (typeof validator !== 'function' || !validator(v))) {
+        throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
+      }
     }
-  }
+  };
 }
 
 function valueToArray(value) {
@@ -55,7 +59,7 @@ function Constructor(group, name, fields) {
     var val = Object.create(group), i;
     val.length = validators.length;
     val.name = name;
-    if (Type.disableChecking !== true) validate(group, validators, name, arguments);
+    if (process.env.NODE_ENV !== 'production') validate(group, validators, name, arguments);
     for (i = 0; i < arguments.length; ++i) {
       val[i] = arguments[i];
       if (keys !== undefined) val[keys[i]] = arguments[i];
@@ -72,19 +76,17 @@ function Constructor(group, name, fields) {
 }
 
 function rawCase(type, cases, value, arg) {
-  if (!type.isPrototypeOf(value)) throw new TypeError('wrong type passed to case');
-  var name = value.name in cases ? value.name
-           : '_' in cases        ? '_'
-                                 : undefined;
-  if (name === undefined) {
-    throw new Error('unhandled value passed to case');
-  } else {
-    var args = name === "_" ? [arg]
-             : arg !== undefined ? valueToArray(value).concat([arg])
-             : value;
-
-    return cases[name].apply(undefined, args);
+  var name = value.name in cases ? value.name : '_';
+  if (process.env.NODE_ENV !== 'production') {
+    if (!type.isPrototypeOf(value)) throw new TypeError('wrong type passed to case');
+    if (!(name in cases)) {
+      throw new Error('non-exhaustive patterns in a function');
+    }
   }
+  var args = name === "_" ? [arg]
+           : arg !== undefined ? valueToArray(value).concat([arg])
+           : value;
+  return cases[name].apply(undefined, args);
 }
 
 var typeCase = curryN(3, rawCase);
@@ -112,7 +114,5 @@ function Type(desc, methods) {
   }
   return obj;
 }
-
-Type.disableChecking = process !== undefined && process.env.NODE_ENV === 'production';
 
 module.exports = Type;

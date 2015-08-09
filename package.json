@@ -20,7 +20,7 @@
     "release-major": "xyz --repo git@github.com:paldepind/union-type.git --increment major",
     "release-minor": "xyz --repo git@github.com:paldepind/union-type.git --increment minor",
     "release-patch": "xyz --repo git@github.com:paldepind/union-type.git --increment patch",
-    "test": "mocha --compilers js:babel/register",
+    "test": "mocha --compilers js:babel/register"
   },
   "repository": {
     "type": "git",

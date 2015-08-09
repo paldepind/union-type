@@ -134,11 +134,11 @@ describe('union type', function() {
     it('throws if no case handler found', function() {
       var called = false;
       var fn = Action.case({
-        Translate: function() { throw new Error(); },
+        Translate: function() { throw new Error(); }
       });
       assert.throws(function() {
         fn(Action.Rotate(30));
-      }, /unhandled/);
+      }, /exhaustive/);
     });
   });
   describe('caseOn', function() {
