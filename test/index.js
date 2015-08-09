@@ -71,6 +71,19 @@ describe('union type', function() {
       Shape.Rectangle(1, Length.Length(12));
     }, /Rectangle/);
   });
+  describe('records', function() {
+    it('can create types from object descriptions', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+    });
+    it('can create values from objects', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+      var p = Point.PointOf({x: 1, y: 2});
+      assert.equal(p.x, 1);
+      assert.equal(p[0], 1);
+      assert.equal(p.y, 2);
+      assert.equal(p[1], 2);
+    });
+  });
   describe('case', function() {
     var Action = Type({Translate: [isNumber, isNumber], Rotate: [isNumber]});
     var sum = Action.case({
