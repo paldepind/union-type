@@ -21,30 +21,54 @@ var mapConstrToFn = function(group, constr) {
                               : constr;
 };
 
+function validate(group, validators, name, args) {
+  var validator, v;
+  for (i = 0; i < args.length; ++i) {
+    v = args[i];
+    validator = mapConstrToFn(group, validators[i]);
+    if ((typeof validator === 'function' && validator(v)) || validator.isPrototypeOf(v)) {
+    } else {
+      throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
+    }
+  }
+}
+
 function valueToArray(value) {
   return Array.prototype.slice.call(value);
 }
 
-function Constructor(group, name, validators) {
-  return curryN(validators.length, function() {
-    var val = Object.create(group), validator, i, v;
+function extractValues(keys, obj) {
+  var arr = [], i;
+  for (i = 0; i < keys.length; ++i) arr[i] = obj[keys[i]];
+  return arr;
+}
+
+function Constructor(group, name, fields) {
+  var constructors = {}, validators, keys, i;
+  if (isArray(fields)) {
+    validators = fields;
+  } else {
+    keys = Object.keys(fields);
+    validators = extractValues(keys, fields);
+  }
+  function construct() {
+    var val = Object.create(group), i;
     val.length = validators.length;
     val.name = name;
-    if (Type.disableChecking === true) {
-      for (i = 0; i < arguments.length; ++i) val[i] = arguments[i];
-    } else {
-      for (i = 0; i < arguments.length; ++i) {
-        v = arguments[i];
-        validator = mapConstrToFn(group, validators[i]);
-        if ((typeof validator === 'function' && validator(v)) || validator.isPrototypeOf(v)) {
-          val[i] = v;
-        } else {
-          throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
-        }
-      }
+    if (Type.disableChecking !== true) validate(group, validators, name, arguments);
+    for (i = 0; i < arguments.length; ++i) {
+      val[i] = arguments[i];
+      if (keys !== undefined) val[keys[i]] = arguments[i];
     }
     return val;
-  });
+  }
+  constructors[name] = curryN(validators.length, construct);
+  if (keys !== undefined) {
+    constructors[name+'Of'] = function(obj) {
+      return construct.apply(undefined, extractValues(keys, obj));
+    };
+  }
+  return constructors;
 }
 
 function rawCase(type, cases, value, arg) {
@@ -65,7 +89,9 @@ var caseOn = curryN(4, rawCase);
 function Type(desc) {
   var obj = {};
   for (var key in desc) {
-    obj[key] = Constructor(obj, key, desc[key]);
+    res = Constructor(obj, key, desc[key]);
+    obj[key] = res[key];
+    obj[key+'Of'] = res[key+'Of'];
   }
   obj.case = typeCase(obj);
   obj.caseOn = caseOn(obj);
