@@ -180,4 +180,13 @@ describe('union type', function() {
       assert.equal(toString(list), '1 : 2 : 3 : Nil');
     });
   });
+  describe('iterator support', () => {
+    it('is can be destructured like array', () => {
+      var {Point, PointOf} = Type({Point: {x: Number, y: Number, z: Number}});
+      var p1 = PointOf({x: 1, y: 2, z: 3});
+      var p2 = Point(1, 2, 3);
+      var [x, y, z] = p1;
+      assert.deepEqual([x, y, z], [1, 2, 3]);
+    });
+  });
 });

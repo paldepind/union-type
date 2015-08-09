@@ -22,7 +22,7 @@ var mapConstrToFn = function(group, constr) {
 };
 
 function validate(group, validators, name, args) {
-  var validator, v;
+  var validator, v, i;
   for (i = 0; i < args.length; ++i) {
     v = args[i];
     validator = mapConstrToFn(group, validators[i]);
@@ -86,11 +86,22 @@ function rawCase(type, cases, value, arg) {
 var typeCase = curryN(3, rawCase);
 var caseOn = curryN(4, rawCase);
 
+function createIterator() {
+  return {
+    idx: 0,
+    val: this,
+    next: function() {
+      return this.idx === this.val.length ? {done: true} : {value: this.val[this.idx++]};
+    }
+  };
+}
+
 function Type(desc, methods) {
-  var obj = methods === undefined ? {} : methods;
+  var key, res, obj = methods === undefined ? {} : methods;
   obj.case = typeCase(obj);
   obj.caseOn = caseOn(obj);
-  for (var key in desc) {
+  obj[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
+  for (key in desc) {
     res = Constructor(obj, key, desc[key]);
     obj[key] = res[key];
     obj[key+'Of'] = res[key+'Of'];
