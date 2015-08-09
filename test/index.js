@@ -3,6 +3,9 @@ var Type = require('../union-type.js');
 
 function isNumber(n) { return typeof n === 'number'; }
 function T() { return true; }
+function add(n) {
+  return function(m) { return n + m; }
+}
 
 describe('union type', function() {
   it('returns type with constructors', function() {
@@ -82,6 +85,24 @@ describe('union type', function() {
       assert.equal(p[0], 1);
       assert.equal(p.y, 2);
       assert.equal(p[1], 2);
+    });
+  });
+  describe('type methods', function() {
+    it('can add instance methods', function() {
+      function maybeMap(fn) {
+        var that = this;
+        return this.case({
+          Nothing: this.Nothing,
+          Just: function(v) { return that.Just(fn(v)); },
+        }, this);
+      }
+      var Maybe = Type({Just: [T], Nothing: []}, {map: maybeMap});
+      var just1 = Maybe.Just(1);
+      var just4 = just1.map(add(3));
+      assert.equal(just4[0], 4);
+      var nothing = Maybe.Nothing();
+      var alsoNothing = nothing.map(add(3));
+      assert.equal(alsoNothing.name, 'Nothing');
     });
   });
   describe('case', function() {
