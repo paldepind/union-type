@@ -21,42 +21,41 @@ var mapConstrToFn = function(group, constr) {
                               : constr;
 };
 
+function valueToArray(value) {
+  return Array.prototype.slice.call(value);
+}
+
 function Constructor(group, name, validators) {
   return curryN(validators.length, function() {
-    var val = [], validator, i, v;
+    var val = Object.create(group), validator, i, v;
+    val.length = validators.length;
+    val.name = name;
     if (Type.disableChecking === true) {
       for (i = 0; i < arguments.length; ++i) val[i] = arguments[i];
     } else {
       for (i = 0; i < arguments.length; ++i) {
         v = arguments[i];
         validator = mapConstrToFn(group, validators[i]);
-        if ((typeof validator === 'function' && validator(v)) ||
-            (v !== undefined && v !== null && v.of === validator)) {
+        if ((typeof validator === 'function' && validator(v)) || validator.isPrototypeOf(v)) {
           val[i] = v;
         } else {
           throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
         }
       }
     }
-    val.of = group;
-    val.name = name;
     return val;
   });
 }
 
-function rawCase(type, cases, action, arg) {
-  if (type !== action.of) throw new TypeError('wrong type passed to case');
-  var name = action.name in cases ? action.name
-           : '_' in cases         ? '_'
-                                  : undefined;
+function rawCase(type, cases, value, arg) {
+  if (!type.isPrototypeOf(value)) throw new TypeError('wrong type passed to case');
+  var name = value.name in cases ? value.name
+           : '_' in cases        ? '_'
+                                 : undefined;
   if (name === undefined) {
     throw new Error('unhandled value passed to case');
   } else {
-    var args = name === "_" ? [arg]
-             : arg !== undefined ? action.concat([arg])
-             : action
-
-    return cases[name].apply(undefined, args);
+    return cases[name].apply(undefined, arg !== undefined ? valueToArray(value).concat([arg]) : value);
   }
 }
 

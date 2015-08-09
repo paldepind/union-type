@@ -2,7 +2,6 @@ var assert = require('assert');
 var Type = require('../union-type.js');
 
 function isNumber(n) { return typeof n === 'number'; }
-
 function T() { return true; }
 
 describe('union type', function() {
@@ -109,18 +108,20 @@ describe('union type', function() {
     });
   });
   describe('caseOn', function() {
-    var Modification = Type({Append: [Number], Remove: [Number], Sort: []});
+    var Modification = Type({Append: [Number], Remove: [Number], Slice: [Number, Number], Sort: []});
     var update = Modification.caseOn({
       Append: function(number, list) { return list.concat([number]); },
       Remove: function(number, list) {
         var idx = list.indexOf(number);
         return list.slice(0, idx).concat(list.slice(idx+1));
       },
+      Slice: function(begin, end, list) { return list.slice(begin, end); },
       Sort: function(list) { return list.sort(); },
     });
     it('passes argument along to case functions', function() {
       assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
       assert.deepEqual(update(Modification.Remove(2), [1, 2, 3, 4]), [1, 3, 4]);
+      assert.deepEqual(update(Modification.Slice(1, 4), [1, 2, 3, 4, 5]), [2, 3, 4]);
       assert.deepEqual(update(Modification.Sort(), [1, 3, 2]), [1, 2, 3]);
     });
     it('partially applied to same action does not affect each other', function() {
