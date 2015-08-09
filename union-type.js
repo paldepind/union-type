@@ -86,15 +86,15 @@ function rawCase(type, cases, value, arg) {
 var typeCase = curryN(3, rawCase);
 var caseOn = curryN(4, rawCase);
 
-function Type(desc) {
-  var obj = {};
+function Type(desc, methods) {
+  var obj = methods === undefined ? {} : methods;
+  obj.case = typeCase(obj);
+  obj.caseOn = caseOn(obj);
   for (var key in desc) {
     res = Constructor(obj, key, desc[key]);
     obj[key] = res[key];
     obj[key+'Of'] = res[key+'Of'];
   }
-  obj.case = typeCase(obj);
-  obj.caseOn = caseOn(obj);
   return obj;
 }
 
