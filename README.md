@@ -130,7 +130,7 @@ var Shape = Type({Circle: [Number, Point],
 var area = (shape) =>
   Shape.case({
     Circle: (radius, _) => Math.PI * radius * radius,
-    Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[0])
+    Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[1])
   }, shape);
 ```
 
@@ -140,7 +140,7 @@ not passing the second parameter to `case`.
 ```javascript
 var area = Shape.case({
   Circle: (radius, _) => Math.PI * radius * radius,
-  Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[0])
+  Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[1])
 });
 ```
 
