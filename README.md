@@ -127,7 +127,7 @@ instance, look like this.
 ```javascript
 var Shape = Type({Circle: [Number, Point],
                   Rectangle: [Point, Point]});
-var area = (shape) =>
+var area = shape =>
   Shape.case({
     Circle: (radius, _) => Math.PI * radius * radius,
     Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[1])
@@ -151,10 +151,10 @@ before could be written in "point-free style" like this:
 ```javascript
 // No need to wrap this into a function that passes `player`
 const advancePlayer = Move.caseOn({
-  Up: (player) => ({x: player.x, y: player.y - 1}),
-  Right: (player) => ({x: player.x + 1, y: player.y}),
-  Down: (player) => ({x: player.x, y: player.y + 1}),
-  Left: (player) => ({x: player.x - 1, y: player.y})
+  Up: player => ({x: player.x, y: player.y - 1}),
+  Right: player => ({x: player.x + 1, y: player.y}),
+  Down: player => ({x: player.x, y: player.y + 1}),
+  Left: player => ({x: player.x - 1, y: player.y})
 });
 
 advancePlayer(Move.Up(), player);
