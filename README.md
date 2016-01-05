@@ -156,7 +156,7 @@ const advancePlayer = Move.caseOn({
   Up: (player) => ({x: player.x, y: player.y - 1}),
   Right: (player) => ({x: player.x + 1, y: player.y}),
   Down: (player) => ({x: player.x, y: player.y + 1}),
-  Left: (player) => ({x: player.x - 1, y: player.y})
+  Left: (player) => ({x: player.x - 1, y: player.y}),
   _: (player) => player
 });
 
