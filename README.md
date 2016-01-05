@@ -94,7 +94,7 @@ constructors. `case` can be used as a control structure for handling the
 different values a type can have:
 
 ```javascript
-var Move = Type({Up: [], Right: [], Down: [], Left: []});
+var Move = Type({Up: [], Right: [], Down: [], Left: [], Jump: [], Fire: [Number]});
 
 var player = {x: 0, y: 0};
 
@@ -104,6 +104,7 @@ var advancePlayer = function(move, player) {
     Right: function() { return {x: player.x + 1, y: player.y}; },
     Down: function() { return {x: player.x, y: player.y + 1}; },
     Left: function() { return {x: player.x - 1, y: player.y}; },
+    _: function() { return player; }
   }, move);
 };
 ```
@@ -117,6 +118,7 @@ const advancePlayer = (move, player) =>
     Right: () => ({x: player.x + 1, y: player.y}),
     Down: () => ({x: player.x, y: player.y + 1}),
     Left: () => ({x: player.x - 1, y: player.y}),
+    _: () => (player),
   }, move);
 ```
 
@@ -155,13 +157,16 @@ const advancePlayer = Move.caseOn({
   Right: (player) => ({x: player.x + 1, y: player.y}),
   Down: (player) => ({x: player.x, y: player.y + 1}),
   Left: (player) => ({x: player.x - 1, y: player.y})
+  _: (player) => (player)
 });
 
 advancePlayer(Move.Up(), player);
 ```
 
 As a catch all you can supply a property with the key `_` to case. When a type
-doesn't match another handler `_` will be used.
+doesn't match another handler `_` will be used. The fields will NOT be extracted
+when matching on `_` as this may result in inconsistent argument positions.
+
 
 ```javascript
 const advancePlayerOnlyUp = (move, player) =>
@@ -218,4 +223,3 @@ console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 
 union-type was made by [paldepind](https://twitter.com/paldepind) and is
 released under the MIT license. I hope you find it useful.
-
