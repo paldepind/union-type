@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "browserify": "^10.2.4",
+    "mocha": "^2.3.4",
     "xyz": "0.5.x"
   },
   "scripts": {

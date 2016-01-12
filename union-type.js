@@ -52,7 +52,11 @@ function rawCase(type, cases, action, arg) {
   if (name === undefined) {
     throw new Error('unhandled value passed to case');
   } else {
-    return cases[name].apply(undefined, arg !== undefined ? action.concat([arg]) : action);
+    var args = name === "_" ? [arg]
+             : arg !== undefined ? action.concat([arg])
+             : action
+
+    return cases[name].apply(undefined, args);
   }
 }
 

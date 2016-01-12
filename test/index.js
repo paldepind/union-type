@@ -129,6 +129,17 @@ describe('union type', function() {
       assert.deepEqual(append3([5, 4]), [5, 4, 3]);
     });
   });
+  describe('caseOn _', function() {
+    var Action = Type({Jump: [], Move: [Number]});
+    var Context = {x: 1, y: 2}
+    var update = Action.caseOn({
+      _: function(context) { return context; },
+    });
+    it('does not extract fields when matching _', function() {
+      assert.deepEqual(update(Action.Jump(), Context), Context);
+      assert.deepEqual(update(Action.Move(5), Context), Context);
+    });
+  });
   describe('recursive data types', function() {
     var List = Type({Nil: [], Cons: [T, List]});
     it('can create single element list', function() {

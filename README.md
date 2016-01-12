@@ -94,30 +94,32 @@ constructors. `case` can be used as a control structure for handling the
 different values a type can have:
 
 ```javascript
-var Move = Type({Up: [], Right: [], Down: [], Left: []});
+var Action = Type({Up: [], Right: [], Down: [], Left: [], Jump: [], Fire: [Number]});
 
 var player = {x: 0, y: 0};
 
-var advancePlayer = function(move, player) {
-  return Move.case({
+var advancePlayer = function(action, player) {
+  return Action.case({
     Up: function() { return {x: player.x, y: player.y - 1}; },
     Right: function() { return {x: player.x + 1, y: player.y}; },
     Down: function() { return {x: player.x, y: player.y + 1}; },
     Left: function() { return {x: player.x - 1, y: player.y}; },
-  }, move);
+    _: function() { return player; }
+  }, action);
 };
 ```
 
 Or with ECMAScript 6 syntax.
 
 ```javascript
-const advancePlayer = (move, player) =>
-  Move.case({
+const advancePlayer = (action, player) =>
+  Action.case({
     Up: () => ({x: player.x, y: player.y - 1}),
     Right: () => ({x: player.x + 1, y: player.y}),
     Down: () => ({x: player.x, y: player.y + 1}),
     Left: () => ({x: player.x - 1, y: player.y}),
-  }, move);
+    _: () => player,
+  }, action);
 ```
 
 `case` will extract the fields of a value and pass them in order to the
@@ -150,22 +152,25 @@ before could be written in "point-free style" like this:
 
 ```javascript
 // No need to wrap this into a function that passes `player`
-const advancePlayer = Move.caseOn({
+const advancePlayer = Action.caseOn({
   Up: (player) => ({x: player.x, y: player.y - 1}),
   Right: (player) => ({x: player.x + 1, y: player.y}),
   Down: (player) => ({x: player.x, y: player.y + 1}),
-  Left: (player) => ({x: player.x - 1, y: player.y})
+  Left: (player) => ({x: player.x - 1, y: player.y}),
+  _: (player) => player
 });
 
-advancePlayer(Move.Up(), player);
+advancePlayer(Action.Up(), player);
 ```
 
 As a catch all you can supply a property with the key `_` to case. When a type
-doesn't match another handler `_` will be used.
+doesn't match another handler `_` will be used. The fields will NOT be extracted
+when matching on `_` as this may result in inconsistent argument positions.
+
 
 ```javascript
-const advancePlayerOnlyUp = (move, player) =>
-  Move.case({
+const advancePlayerOnlyUp = (action, player) =>
+  Action.case({
     Up: () => ({x: player.x, y: player.y - 1}),
     _: () => player,
   });
@@ -218,4 +223,3 @@ console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 
 union-type was made by [paldepind](https://twitter.com/paldepind) and is
 released under the MIT license. I hope you find it useful.
-
