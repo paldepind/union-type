@@ -121,7 +121,7 @@ describe('union type', function() {
       var AnotherAction = Type({Translate: [Number]});
       assert.throws(function() {
         sum(AnotherAction.Translate(12));
-      }, /Non-exhaustive patterns/);
+      }, /wrong type/);
     });
     it('calls back to placeholder', function() {
       var called = false;
