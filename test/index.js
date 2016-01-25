@@ -121,7 +121,7 @@ describe('union type', function() {
       var AnotherAction = Type({Translate: [Number]});
       assert.throws(function() {
         sum(AnotherAction.Translate(12));
-      }, /wrong type/);
+      }, /Non-exhaustive patterns/);
     });
     it('calls back to placeholder', function() {
       var called = false;
@@ -162,6 +162,17 @@ describe('union type', function() {
       var append3 = update(Modification.Append(3));
       assert.deepEqual(append3([1, 2]), [1, 2, 3]);
       assert.deepEqual(append3([5, 4]), [5, 4, 3]);
+    });
+  });
+  describe('caseOn _', function() {
+    var Action = Type({Jump: [], Move: [Number]});
+    var Context = {x: 1, y: 2}
+    var update = Action.caseOn({
+      _: function(context) { return context; },
+    });
+    it('does not extract fields when matching _', function() {
+      assert.deepEqual(update(Action.Jump(), Context), Context);
+      assert.deepEqual(update(Action.Move(5), Context), Context);
     });
   });
   describe('recursive data types', function() {

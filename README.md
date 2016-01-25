@@ -21,7 +21,8 @@ associated with the possible values.
 ### Defining a union type
 
 union-type exports a single function `Type`. Union types are created by
-passing the `Type` function a definition object.
+passing the `Type` function a definition object. The easiest way to define
+a Type is as follows:
 
 ```javascript
 function isNumber(n) { return typeof n === 'number'; }
@@ -41,6 +42,32 @@ Thus the above example is equivalent to this:
 
 ```javascript
 var Point = Type({Point: [Number, Number]});
+```
+
+Instead of supplying only the types of the individual constructors it is also
+possible to define records using object descriptions:
+
+```javascript
+var Point = Type({Point: {x: Number, y: Number}});
+```
+
+Furthermore it is possible to add instance methods. A Maybe type with a map
+function could thus be defined as follows:
+
+```javascript
+var T = function () { return true; };
+var maybeMap(fn) {
+    var that = this;
+    return this.case({
+        Nothing: this.Nothing,
+        Just: function(v) { return that.Just(fn(v)); }
+    }, this);
+};
+var Maybe = Type({Just: [T], Nothing: []}, {map: maybeMap});
+var just = Maybe.Just(1);
+var nothing = Maybe.Nothing();
+nothing.map(add(1)); // => Nothing
+just.map(add(1)); // => Just(2)
 ```
 
 Finally fields can be described in terms of other types.
@@ -87,6 +114,19 @@ var p = Point.Point('bad', 4);
 // throws TypeError: wrong value bad passed to location 0 in Point
 ```
 
+As mentioned earlier you can also define records using object descriptions:
+
+```javascript
+var Point = Type({Point: {x: Number, y: Number}});
+```
+
+Types defined using the record syntax have to be constructed using the respective
+`<name>Of` constructor. The Point type above is hence constructed using `PointOf`:
+
+```javascript
+var p = Point.PointOf({x: 1, y: 1});
+```
+
 ### Switching on union types
 
 Every created type has a `case` function available along with its value
@@ -94,30 +134,32 @@ constructors. `case` can be used as a control structure for handling the
 different values a type can have:
 
 ```javascript
-var Move = Type({Up: [], Right: [], Down: [], Left: []});
+var Action = Type({Up: [], Right: [], Down: [], Left: [], Jump: [], Fire: [Number]});
 
 var player = {x: 0, y: 0};
 
-var advancePlayer = function(move, player) {
-  return Move.case({
+var advancePlayer = function(action, player) {
+  return Action.case({
     Up: function() { return {x: player.x, y: player.y - 1}; },
     Right: function() { return {x: player.x + 1, y: player.y}; },
     Down: function() { return {x: player.x, y: player.y + 1}; },
     Left: function() { return {x: player.x - 1, y: player.y}; },
-  }, move);
+    _: function() { return player; }
+  }, action);
 };
 ```
 
 Or with ECMAScript 6 syntax.
 
 ```javascript
-const advancePlayer = (move, player) =>
-  Move.case({
+const advancePlayer = (action, player) =>
+  Action.case({
     Up: () => ({x: player.x, y: player.y - 1}),
     Right: () => ({x: player.x + 1, y: player.y}),
     Down: () => ({x: player.x, y: player.y + 1}),
     Left: () => ({x: player.x - 1, y: player.y}),
-  }, move);
+    _: () => player,
+  }, action);
 ```
 
 `case` will extract the fields of a value and pass them in order to the
@@ -130,7 +172,7 @@ var Shape = Type({Circle: [Number, Point],
 var area = (shape) =>
   Shape.case({
     Circle: (radius, _) => Math.PI * radius * radius,
-    Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[0])
+    Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[1])
   }, shape);
 ```
 
@@ -140,7 +182,7 @@ not passing the second parameter to `case`.
 ```javascript
 var area = Shape.case({
   Circle: (radius, _) => Math.PI * radius * radius,
-  Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[0])
+  Rectangle: (p1, p2) => (p2[0] - p1[0]) * (p2[1] - p1[1])
 });
 ```
 
@@ -150,22 +192,25 @@ before could be written in "point-free style" like this:
 
 ```javascript
 // No need to wrap this into a function that passes `player`
-const advancePlayer = Move.caseOn({
+const advancePlayer = Action.caseOn({
   Up: (player) => ({x: player.x, y: player.y - 1}),
   Right: (player) => ({x: player.x + 1, y: player.y}),
   Down: (player) => ({x: player.x, y: player.y + 1}),
-  Left: (player) => ({x: player.x - 1, y: player.y})
+  Left: (player) => ({x: player.x - 1, y: player.y}),
+  _: (player) => player
 });
 
-advancePlayer(Move.Up(), player);
+advancePlayer(Action.Up(), player);
 ```
 
 As a catch all you can supply a property with the key `_` to case. When a type
-doesn't match another handler `_` will be used.
+doesn't match another handler `_` will be used. The fields will NOT be extracted
+when matching on `_` as this may result in inconsistent argument positions.
+
 
 ```javascript
-const advancePlayerOnlyUp = (move, player) =>
-  Move.case({
+const advancePlayerOnlyUp = (action, player) =>
+  Action.case({
     Up: () => ({x: player.x, y: player.y - 1}),
     _: () => player,
   });
@@ -173,8 +218,19 @@ const advancePlayerOnlyUp = (move, player) =>
 
 ### Extracting fields from a union type
 
-The value of a union type is an array. This makes it easy to access the
-different fields.
+If your type was defined using the record syntax you can access the fields
+through the name you specified:
+
+```javascript
+var Person = Type({Person: {name: String, age: Number, shape: Shape}});
+var person = Person.PersonOf({name: 'Simon', age: 21, shape: Circle});
+var name = person.name;
+var age = person.age;
+var favoriteShape = person.shape;
+```
+
+If your type was not created using the record syntax the fields have to
+be extracted by indexing your union type:
 
 ```javascript
 var Person = Type({Person: [String, Number, Shape]});
@@ -218,4 +274,3 @@ console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 
 union-type was made by [paldepind](https://twitter.com/paldepind) and is
 released under the MIT license. I hope you find it useful.
-
