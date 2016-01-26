@@ -83,6 +83,8 @@ function rawCase(type, cases, value, arg) {
       throw new Error('unhandled value passed to case');
     }
   }
+
+  if (name === '_')  return arg;
   return cases[name].apply(undefined, arg !== undefined ? valueToArray(value).concat([arg]) : value);
 }
 
