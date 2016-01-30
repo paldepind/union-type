@@ -86,6 +86,14 @@ describe('union type', function() {
       assert.equal(p.y, 2);
       assert.equal(p[1], 2);
     });
+    it('can create values from arguments', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+      var p = Point.Point(1, 2);
+      assert.equal(p.x, 1);
+      assert.equal(p[0], 1);
+      assert.equal(p.y, 2);
+      assert.equal(p[1], 2);      
+    });
   });
   describe('type methods', function() {
     it('can add instance methods', function() {

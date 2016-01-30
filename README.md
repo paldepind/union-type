@@ -127,6 +127,12 @@ Types defined using the record syntax have to be constructed using the respectiv
 var p = Point.PointOf({x: 1, y: 1});
 ```
 
+Alternatively records can be constructed in the same way as regular types.
+
+```javascript
+var p = Point.Point(1, 1);
+```
+
 ### Switching on union types
 
 Every created type has a `case` function available along with its value
