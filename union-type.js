@@ -47,7 +47,7 @@ function extractValues(keys, obj) {
   return arr;
 }
 
-function Constructor(group, name, fields) {
+function constructor(group, name, fields) {
   var constructors = {}, validators, keys, i;
   if (isArray(fields)) {
     validators = fields;
@@ -76,17 +76,23 @@ function Constructor(group, name, fields) {
 }
 
 function rawCase(type, cases, value, arg) {
-  var name = value.name in cases ? value.name : '_';
+  var wildcard = false;
+  var handler = cases[value.name];
+  if (handler === undefined) {
+    handler = cases['_'];
+    wildcard = true;
+  }
   if (process.env.NODE_ENV !== 'production') {
-    if (!type.isPrototypeOf(value)) throw new TypeError('wrong type passed to case');
-    if (!(name in cases)) {
+    if (!type.isPrototypeOf(value)) {
+      throw new TypeError('wrong type passed to case');
+    } else if (handler === undefined) {
       throw new Error('non-exhaustive patterns in a function');
     }
   }
-  var args = name === "_" ? [arg]
+  var args = wildcard === true ? [arg]
            : arg !== undefined ? valueToArray(value).concat([arg])
            : value;
-  return cases[name].apply(undefined, args);
+  return handler.apply(undefined, args);
 }
 
 var typeCase = curryN(3, rawCase);
@@ -108,7 +114,7 @@ function Type(desc, methods) {
   obj.caseOn = caseOn(obj);
   obj[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   for (key in desc) {
-    res = Constructor(obj, key, desc[key]);
+    res = constructor(obj, key, desc[key]);
     obj[key] = res[key];
     obj[key+'Of'] = res[key+'Of'];
   }

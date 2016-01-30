@@ -4,7 +4,7 @@ var Type = require('../union-type.js');
 function isNumber(n) { return typeof n === 'number'; }
 function T() { return true; }
 function add(n) {
-  return function(m) { return n + m; }
+  return function(m) { return n + m; };
 }
 
 describe('union type', function() {
@@ -93,7 +93,7 @@ describe('union type', function() {
         var that = this;
         return this.case({
           Nothing: this.Nothing,
-          Just: function(v) { return that.Just(fn(v)); },
+          Just: function(v) { return that.Just(fn(v)); }
         }, this);
       }
       var Maybe = Type({Just: [T], Nothing: []}, {map: maybeMap});
@@ -106,16 +106,26 @@ describe('union type', function() {
     });
   });
   describe('case', function() {
-    var Action = Type({Translate: [isNumber, isNumber], Rotate: [isNumber]});
+    var Action = Type({
+      Translate: [isNumber, isNumber],
+      Rotate: [isNumber],
+      Scale: {x: Number, y: Number}
+    });
     var sum = Action.case({
       Translate: function(x, y) {
         return x + y;
       },
       Rotate: function(n) { return n; },
+      Scale: function(x, y) {
+	return x + y;
+      }
     });
     it('works on types', function() {
       assert.equal(sum(Action.Translate(10, 8)), 18);
       assert.equal(sum(Action.Rotate(30)), 30);
+    });
+    it('destructs record types', function() {
+      assert.equal(sum(Action.ScaleOf({x: 3, y: 4})), 7);
     });
     it('throws on incorrect type', function() {
       var AnotherAction = Type({Translate: [Number]});
@@ -150,7 +160,7 @@ describe('union type', function() {
         return list.slice(0, idx).concat(list.slice(idx+1));
       },
       Slice: function(begin, end, list) { return list.slice(begin, end); },
-      Sort: function(list) { return list.sort(); },
+      Sort: function(list) { return list.sort(); }
     });
     it('passes argument along to case functions', function() {
       assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
@@ -166,9 +176,9 @@ describe('union type', function() {
   });
   describe('caseOn _', function() {
     var Action = Type({Jump: [], Move: [Number]});
-    var Context = {x: 1, y: 2}
+    var Context = {x: 1, y: 2};
     var update = Action.caseOn({
-      _: function(context) { return context; },
+      _: function(context) { return context; }
     });
     it('does not extract fields when matching _', function() {
       assert.deepEqual(update(Action.Jump(), Context), Context);
