@@ -82,17 +82,19 @@ describe('union type', function() {
       var Point = Type({Point: {x: Number, y: Number}});
       var p = Point.PointOf({x: 1, y: 2});
       assert.equal(p.x, 1);
-      assert.equal(p[0], 1);
       assert.equal(p.y, 2);
-      assert.equal(p[1], 2);
     });
     it('can create values from arguments', function() {
       var Point = Type({Point: {x: Number, y: Number}});
       var p = Point.Point(1, 2);
       assert.equal(p.x, 1);
-      assert.equal(p[0], 1);
       assert.equal(p.y, 2);
-      assert.equal(p[1], 2);      
+    });
+    it('does not add numerical properties to records', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+      var p = Point.Point(1, 2);
+      assert.equal(p[0], undefined);
+      assert.equal(p[1], undefined);
     });
   });
   describe('type methods', function() {
@@ -125,6 +127,7 @@ describe('union type', function() {
       },
       Rotate: function(n) { return n; },
       Scale: function(x, y) {
+	console.log(x, y);
 	return x + y;
       }
     });
@@ -162,7 +165,9 @@ describe('union type', function() {
   describe('caseOn', function() {
     var Modification = Type({Append: [Number], Remove: [Number], Slice: [Number, Number], Sort: []});
     var update = Modification.caseOn({
-      Append: function(number, list) { return list.concat([number]); },
+      Append: function(number, list) {
+	return list.concat([number]);
+      },
       Remove: function(number, list) {
         var idx = list.indexOf(number);
         return list.slice(0, idx).concat(list.slice(idx+1));

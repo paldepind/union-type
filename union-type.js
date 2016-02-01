@@ -38,7 +38,11 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 function valueToArray(value) {
-  return Array.prototype.slice.call(value);
+  var i, arr = [];
+  for (i = 0; i < value.keys.length; ++i) {
+    arr.push(value[value.keys[i]]);
+  }
+  return arr;
 }
 
 function extractValues(keys, obj) {
@@ -48,25 +52,26 @@ function extractValues(keys, obj) {
 }
 
 function constructor(group, name, fields) {
-  var constructors = {}, validators, keys, i;
+  var constructors = {}, validators, keys = Object.keys(fields), i;
   if (isArray(fields)) {
     validators = fields;
   } else {
-    keys = Object.keys(fields);
     validators = extractValues(keys, fields);
   }
   function construct() {
     var val = Object.create(group), i;
-    val.length = validators.length;
+    val.keys = keys;
+    val.length = keys.length;
     val.name = name;
-    if (process.env.NODE_ENV !== 'production') validate(group, validators, name, arguments);
+    if (process.env.NODE_ENV !== 'production') {
+      validate(group, validators, name, arguments);
+    }
     for (i = 0; i < arguments.length; ++i) {
-      val[i] = arguments[i];
-      if (keys !== undefined) val[keys[i]] = arguments[i];
+      val[keys[i]] = arguments[i];
     }
     return val;
   }
-  constructors[name] = curryN(validators.length, construct);
+  constructors[name] = curryN(keys.length, construct);
   if (keys !== undefined) {
     constructors[name+'Of'] = function(obj) {
       return construct.apply(undefined, extractValues(keys, obj));
@@ -91,7 +96,7 @@ function rawCase(type, cases, value, arg) {
   }
   var args = wildcard === true ? [arg]
            : arg !== undefined ? valueToArray(value).concat([arg])
-           : value;
+           : valueToArray(value);
   return handler.apply(undefined, args);
 }
 
@@ -103,7 +108,10 @@ function createIterator() {
     idx: 0,
     val: this,
     next: function() {
-      return this.idx === this.val.length ? {done: true} : {value: this.val[this.idx++]};
+      var v = this.val;
+      return this.idx === v.length
+	? {done: true}
+        : {value: v[v.keys[this.idx++]]};
     }
   };
 }
