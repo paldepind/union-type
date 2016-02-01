@@ -52,7 +52,7 @@ function extractValues(keys, obj) {
 }
 
 function constructor(group, name, fields) {
-  var constructors = {}, validators, keys = Object.keys(fields), i;
+  var validators, keys = Object.keys(fields), i;
   if (isArray(fields)) {
     validators = fields;
   } else {
@@ -61,7 +61,6 @@ function constructor(group, name, fields) {
   function construct() {
     var val = Object.create(group), i;
     val.keys = keys;
-    val.length = keys.length;
     val.name = name;
     if (process.env.NODE_ENV !== 'production') {
       validate(group, validators, name, arguments);
@@ -71,13 +70,12 @@ function constructor(group, name, fields) {
     }
     return val;
   }
-  constructors[name] = curryN(keys.length, construct);
+  group[name] = curryN(keys.length, construct);
   if (keys !== undefined) {
-    constructors[name+'Of'] = function(obj) {
+    group[name+'Of'] = function(obj) {
       return construct.apply(undefined, extractValues(keys, obj));
     };
   }
-  return constructors;
 }
 
 function rawCase(type, cases, value, arg) {
@@ -108,10 +106,10 @@ function createIterator() {
     idx: 0,
     val: this,
     next: function() {
-      var v = this.val;
-      return this.idx === v.length
+      var keys = this.val.keys;
+      return this.idx === keys.length
 	? {done: true}
-        : {value: v[v.keys[this.idx++]]};
+        : {value: this.val[keys[this.idx++]]};
     }
   };
 }
@@ -123,8 +121,6 @@ function Type(desc, methods) {
   obj[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   for (key in desc) {
     res = constructor(obj, key, desc[key]);
-    obj[key] = res[key];
-    obj[key+'Of'] = res[key+'Of'];
   }
   return obj;
 }

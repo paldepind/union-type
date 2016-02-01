@@ -127,7 +127,6 @@ describe('union type', function() {
       },
       Rotate: function(n) { return n; },
       Scale: function(x, y) {
-	console.log(x, y);
 	return x + y;
       }
     });
