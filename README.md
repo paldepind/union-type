@@ -44,6 +44,8 @@ Thus the above example is equivalent to this:
 var Point = Type({Point: [Number, Number]});
 ```
 
+### Records
+
 Instead of supplying only the types of the individual constructors it is also
 possible to define records using object descriptions:
 
@@ -51,19 +53,20 @@ possible to define records using object descriptions:
 var Point = Type({Point: {x: Number, y: Number}});
 ```
 
+### Instance methods
+
 Furthermore it is possible to add instance methods. A Maybe type with a map
 function could thus be defined as follows:
 
 ```javascript
 var T = function () { return true; };
-var maybeMap(fn) {
-    var that = this;
-    return this.case({
-        Nothing: this.Nothing,
-        Just: function(v) { return that.Just(fn(v)); }
-    }, this);
+var Maybe = Type({Just: [T], Nothing: []});
+Maybe.prototype.map = function(fn) {
+  return Maybe.case({
+    Nothing: () => Maybe.Nothing(),
+    Just: (v) => Maybe.Just(fn(v))
+  }, this);
 };
-var Maybe = Type({Just: [T], Nothing: []}, {map: maybeMap});
 var just = Maybe.Just(1);
 var nothing = Maybe.Nothing();
 nothing.map(add(1)); // => Nothing

@@ -29,7 +29,8 @@ if (process.env.NODE_ENV !== 'production') {
     for (i = 0; i < args.length; ++i) {
       v = args[i];
       validator = mapConstrToFn(group, validators[i]);
-      if (process.env.NODE_ENV !== 'production' && !validator.isPrototypeOf(v) &&
+      if (process.env.NODE_ENV !== 'production' &&
+	  (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
           (typeof validator !== 'function' || !validator(v))) {
         throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
       }
@@ -59,7 +60,7 @@ function constructor(group, name, fields) {
     validators = extractValues(keys, fields);
   }
   function construct() {
-    var val = Object.create(group), i;
+    var val = Object.create(group.prototype), i;
     val.keys = keys;
     val.name = name;
     if (process.env.NODE_ENV !== 'production') {
@@ -86,7 +87,7 @@ function rawCase(type, cases, value, arg) {
     wildcard = true;
   }
   if (process.env.NODE_ENV !== 'production') {
-    if (!type.isPrototypeOf(value)) {
+    if (!type.prototype.isPrototypeOf(value)) {
       throw new TypeError('wrong type passed to case');
     } else if (handler === undefined) {
       throw new Error('non-exhaustive patterns in a function');
@@ -114,11 +115,12 @@ function createIterator() {
   };
 }
 
-function Type(desc, methods) {
-  var key, res, obj = methods === undefined ? {} : methods;
+function Type(desc) {
+  var key, res, obj = {};
+  obj.prototype = {};
+  obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   obj.case = typeCase(obj);
   obj.caseOn = caseOn(obj);
-  obj[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   for (key in desc) {
     res = constructor(obj, key, desc[key]);
   }

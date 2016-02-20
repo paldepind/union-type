@@ -99,14 +99,13 @@ describe('union type', function() {
   });
   describe('type methods', function() {
     it('can add instance methods', function() {
-      function maybeMap(fn) {
-        var that = this;
-        return this.case({
-          Nothing: this.Nothing,
-          Just: function(v) { return that.Just(fn(v)); }
+      var Maybe = Type({Just: [T], Nothing: []});
+      Maybe.prototype.map = function(fn) {
+        return Maybe.case({
+          Nothing: () => Maybe.Nothing(),
+          Just: (v) => Maybe.Just(fn(v))
         }, this);
-      }
-      var Maybe = Type({Just: [T], Nothing: []}, {map: maybeMap});
+      };
       var just1 = Maybe.Just(1);
       var just4 = just1.map(add(3));
       assert.equal(just4[0], 4);
