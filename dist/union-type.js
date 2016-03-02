@@ -1,96 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.unionType = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = setTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    clearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],2:[function(require,module,exports){
 var _curry2 = require('./internal/_curry2');
 
 
@@ -139,7 +47,7 @@ module.exports = _curry2(function(n, fn) {
   }
 });
 
-},{"./internal/_curry2":5}],3:[function(require,module,exports){
+},{"./internal/_curry2":4}],2:[function(require,module,exports){
 var _curry2 = require('./internal/_curry2');
 var _curryN = require('./internal/_curryN');
 var arity = require('./arity');
@@ -192,7 +100,7 @@ module.exports = _curry2(function curryN(length, fn) {
   return arity(length, _curryN(length, [], fn));
 });
 
-},{"./arity":2,"./internal/_curry2":5,"./internal/_curryN":6}],4:[function(require,module,exports){
+},{"./arity":1,"./internal/_curry2":4,"./internal/_curryN":5}],3:[function(require,module,exports){
 /**
  * Optimized internal two-arity curry function.
  *
@@ -213,7 +121,7 @@ module.exports = function _curry1(fn) {
   };
 };
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var _curry1 = require('./_curry1');
 
 
@@ -247,7 +155,7 @@ module.exports = function _curry2(fn) {
   };
 };
 
-},{"./_curry1":4}],6:[function(require,module,exports){
+},{"./_curry1":3}],5:[function(require,module,exports){
 var arity = require('../arity');
 
 
@@ -287,22 +195,23 @@ module.exports = function _curryN(length, received, fn) {
   };
 };
 
-},{"../arity":2}],7:[function(require,module,exports){
-(function (process){
+},{"../arity":1}],6:[function(require,module,exports){
 var curryN = require('ramda/src/curryN');
 
-function isString(s) { return typeof s === 'string'; }
-function isNumber(n) { return typeof n === 'number'; }
-function isObject(value) {
+var isString = function(s) { return typeof s === 'string'; };
+var isNumber = function(n) { return typeof n === 'number'; };
+var isBoolean = function(b) { return typeof b === 'boolean'; };
+var isObject = function(value) {
   var type = typeof value;
   return !!value && (type == 'object' || type == 'function');
-}
-function isFunction(f) { return typeof f === 'function'; }
+};
+var isFunction = function(f) { return typeof f === 'function'; };
 var isArray = Array.isArray || function(a) { return 'length' in a; };
 
 var mapConstrToFn = function(group, constr) {
   return constr === String    ? isString
        : constr === Number    ? isNumber
+       : constr === Boolean   ? isBoolean
        : constr === Object    ? isObject
        : constr === Array     ? isArray
        : constr === Function  ? isFunction
@@ -310,58 +219,113 @@ var mapConstrToFn = function(group, constr) {
                               : constr;
 };
 
-function Constructor(group, name, validators) {
-  return curryN(validators.length, function() {
-    var val = [], v, validator, i;
-    if (Type.disableChecking === true) {
-      for (i = 0; i < arguments.length; ++i) val[i] = arguments[i];
-    } else {
-      for (i = 0; i < arguments.length; ++i) {
-        v = arguments[i];
-        validator = mapConstrToFn(group, validators[i]);
-        if ((typeof validator === 'function' && validator(v)) ||
-            (v !== undefined && v !== null && v.of === validator)) {
-          val[i] = v;
-        } else {
-          throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
-        }
-      }
+var numToStr = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+
+var validate = function(group, validators, name, args) {
+  var validator, v, i;
+  for (i = 0; i < args.length; ++i) {
+    v = args[i];
+    validator = mapConstrToFn(group, validators[i]);
+    if (Type.check === true &&
+        (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
+        (typeof validator !== 'function' || !validator(v))) {
+      throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
     }
-    val.of = group;
-    val.name = name;
-    return val;
-  });
+  }
+};
+
+function valueToArray(value) {
+  var i, arr = [];
+  for (i = 0; i < value.keys.length; ++i) {
+    arr.push(value[value.keys[i]]);
+  }
+  return arr;
 }
 
-function rawCase(type, cases, action, arg) {
-  if (type !== action.of) throw new TypeError('wrong type passed to case');
-  var name = action.name in cases ? action.name
-           : '_' in cases         ? '_'
-                                  : undefined;
-  if (name === undefined) {
-    throw new Error('unhandled value passed to case');
+function extractValues(keys, obj) {
+  var arr = [], i;
+  for (i = 0; i < keys.length; ++i) arr[i] = obj[keys[i]];
+  return arr;
+}
+
+function constructor(group, name, fields) {
+  var validators, keys = Object.keys(fields), i;
+  if (isArray(fields)) {
+    validators = fields;
   } else {
-    return cases[name].apply(undefined, arg !== undefined ? action.concat([arg]) : action);
+    validators = extractValues(keys, fields);
   }
+  function construct() {
+    var val = Object.create(group.prototype), i;
+    val.keys = keys;
+    val.name = name;
+    if (Type.check === true) {
+      validate(group, validators, name, arguments);
+    }
+    for (i = 0; i < arguments.length; ++i) {
+      val[keys[i]] = arguments[i];
+    }
+    return val;
+  }
+  group[name] = curryN(keys.length, construct);
+  if (keys !== undefined) {
+    group[name+'Of'] = function(obj) {
+      return construct.apply(undefined, extractValues(keys, obj));
+    };
+  }
+}
+
+function rawCase(type, cases, value, arg) {
+  var wildcard = false;
+  var handler = cases[value.name];
+  if (handler === undefined) {
+    handler = cases['_'];
+    wildcard = true;
+  }
+  if (Type.check === true) {
+    if (!type.prototype.isPrototypeOf(value)) {
+      throw new TypeError('wrong type passed to case');
+    } else if (handler === undefined) {
+      throw new Error('non-exhaustive patterns in a function');
+    }
+  }
+  var args = wildcard === true ? [arg]
+           : arg !== undefined ? valueToArray(value).concat([arg])
+           : valueToArray(value);
+  return handler.apply(undefined, args);
 }
 
 var typeCase = curryN(3, rawCase);
 var caseOn = curryN(4, rawCase);
 
+function createIterator() {
+  return {
+    idx: 0,
+    val: this,
+    next: function() {
+      var keys = this.val.keys;
+      return this.idx === keys.length
+        ? {done: true}
+        : {value: this.val[keys[this.idx++]]};
+    }
+  };
+}
+
 function Type(desc) {
-  var obj = {};
-  for (var key in desc) {
-    obj[key] = Constructor(obj, key, desc[key]);
-  }
+  var key, res, obj = {};
+  obj.prototype = {};
+  obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   obj.case = typeCase(obj);
   obj.caseOn = caseOn(obj);
+  for (key in desc) {
+    res = constructor(obj, key, desc[key]);
+  }
   return obj;
 }
 
-Type.disableChecking = process !== undefined && process.env.NODE_ENV === 'production';
+Type.check = true;
 
 module.exports = Type;
 
-}).call(this,require('_process'))
-},{"_process":1,"ramda/src/curryN":3}]},{},[7])(7)
+},{"ramda/src/curryN":2}]},{},[6])(6)
 });
