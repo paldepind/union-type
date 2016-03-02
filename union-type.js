@@ -1,42 +1,40 @@
 var curryN = require('ramda/src/curryN');
 
-if (process.env.NODE_ENV !== 'production') {
-  var isString = function(s) { return typeof s === 'string'; };
-  var isNumber = function(n) { return typeof n === 'number'; };
-  var isBoolean = function(b) { return typeof b === 'boolean'; };
-  var isObject = function(value) {
-    var type = typeof value;
-    return !!value && (type == 'object' || type == 'function');
-  };
-  var isFunction = function(f) { return typeof f === 'function'; };
-  var isArray = Array.isArray || function(a) { return 'length' in a; };
+var isString = function(s) { return typeof s === 'string'; };
+var isNumber = function(n) { return typeof n === 'number'; };
+var isBoolean = function(b) { return typeof b === 'boolean'; };
+var isObject = function(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+};
+var isFunction = function(f) { return typeof f === 'function'; };
+var isArray = Array.isArray || function(a) { return 'length' in a; };
 
-  var mapConstrToFn = function(group, constr) {
-    return constr === String    ? isString
-         : constr === Number    ? isNumber
-         : constr === Boolean   ? isBoolean
-         : constr === Object    ? isObject
-         : constr === Array     ? isArray
-         : constr === Function  ? isFunction
-         : constr === undefined ? group
-                                : constr;
-  };
+var mapConstrToFn = function(group, constr) {
+  return constr === String    ? isString
+       : constr === Number    ? isNumber
+       : constr === Boolean   ? isBoolean
+       : constr === Object    ? isObject
+       : constr === Array     ? isArray
+       : constr === Function  ? isFunction
+       : constr === undefined ? group
+                              : constr;
+};
 
-  var numToStr = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+var numToStr = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
 
-  var validate = function(group, validators, name, args) {
-    var validator, v, i;
-    for (i = 0; i < args.length; ++i) {
-      v = args[i];
-      validator = mapConstrToFn(group, validators[i]);
-      if (process.env.NODE_ENV !== 'production' &&
-          (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
-          (typeof validator !== 'function' || !validator(v))) {
-        throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
-      }
+var validate = function(group, validators, name, args) {
+  var validator, v, i;
+  for (i = 0; i < args.length; ++i) {
+    v = args[i];
+    validator = mapConstrToFn(group, validators[i]);
+    if (Type.check === true &&
+        (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
+        (typeof validator !== 'function' || !validator(v))) {
+      throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
     }
-  };
-}
+  }
+};
 
 function valueToArray(value) {
   var i, arr = [];
@@ -63,7 +61,7 @@ function constructor(group, name, fields) {
     var val = Object.create(group.prototype), i;
     val.keys = keys;
     val.name = name;
-    if (process.env.NODE_ENV !== 'production') {
+    if (Type.check === true) {
       validate(group, validators, name, arguments);
     }
     for (i = 0; i < arguments.length; ++i) {
@@ -86,7 +84,7 @@ function rawCase(type, cases, value, arg) {
     handler = cases['_'];
     wildcard = true;
   }
-  if (process.env.NODE_ENV !== 'production') {
+  if (Type.check === true) {
     if (!type.prototype.isPrototypeOf(value)) {
       throw new TypeError('wrong type passed to case');
     } else if (handler === undefined) {
@@ -126,5 +124,7 @@ function Type(desc) {
   }
   return obj;
 }
+
+Type.check = true;
 
 module.exports = Type;

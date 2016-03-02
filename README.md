@@ -279,6 +279,11 @@ var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())));
 console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 ```
 
+### Disabling type checking
+
+Type checking can be disabled, for instance in production, by setting
+`Type.check` to `false`.
+
 ## Author & license
 
 union-type was made by [paldepind](https://twitter.com/paldepind) and is
