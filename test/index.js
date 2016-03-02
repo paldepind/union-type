@@ -2,8 +2,10 @@ var assert = require('assert');
 var Type = require('../union-type.js');
 
 function isNumber(n) { return typeof n === 'number'; }
-
 function T() { return true; }
+function add(n) {
+  return function(m) { return n + m; };
+}
 
 describe('union type', function() {
   it('returns type with constructors', function() {
@@ -72,17 +74,67 @@ describe('union type', function() {
       Shape.Rectangle(1, Length.Length(12));
     }, /Rectangle/);
   });
+  describe('records', function() {
+    it('can create types from object descriptions', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+    });
+    it('can create values from objects', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+      var p = Point.PointOf({x: 1, y: 2});
+      assert.equal(p.x, 1);
+      assert.equal(p.y, 2);
+    });
+    it('can create values from arguments', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+      var p = Point.Point(1, 2);
+      assert.equal(p.x, 1);
+      assert.equal(p.y, 2);
+    });
+    it('does not add numerical properties to records', function() {
+      var Point = Type({Point: {x: Number, y: Number}});
+      var p = Point.Point(1, 2);
+      assert.equal(p[0], undefined);
+      assert.equal(p[1], undefined);
+    });
+  });
+  describe('type methods', function() {
+    it('can add instance methods', function() {
+      var Maybe = Type({Just: [T], Nothing: []});
+      Maybe.prototype.map = function(fn) {
+        return Maybe.case({
+          Nothing: () => Maybe.Nothing(),
+          Just: (v) => Maybe.Just(fn(v))
+        }, this);
+      };
+      var just1 = Maybe.Just(1);
+      var just4 = just1.map(add(3));
+      assert.equal(just4[0], 4);
+      var nothing = Maybe.Nothing();
+      var alsoNothing = nothing.map(add(3));
+      assert.equal(alsoNothing.name, 'Nothing');
+    });
+  });
   describe('case', function() {
-    var Action = Type({Translate: [isNumber, isNumber], Rotate: [isNumber]});
+    var Action = Type({
+      Translate: [isNumber, isNumber],
+      Rotate: [isNumber],
+      Scale: {x: Number, y: Number}
+    });
     var sum = Action.case({
       Translate: function(x, y) {
         return x + y;
       },
       Rotate: function(n) { return n; },
+      Scale: function(x, y) {
+	return x + y;
+      }
     });
     it('works on types', function() {
       assert.equal(sum(Action.Translate(10, 8)), 18);
       assert.equal(sum(Action.Rotate(30)), 30);
+    });
+    it('destructs record types', function() {
+      assert.equal(sum(Action.ScaleOf({x: 3, y: 4})), 7);
     });
     it('throws on incorrect type', function() {
       var AnotherAction = Type({Translate: [Number]});
@@ -101,26 +153,30 @@ describe('union type', function() {
     it('throws if no case handler found', function() {
       var called = false;
       var fn = Action.case({
-        Translate: function() { throw new Error(); },
+        Translate: function() { throw new Error(); }
       });
       assert.throws(function() {
         fn(Action.Rotate(30));
-      }, /unhandled/);
+      }, /exhaustive/);
     });
   });
   describe('caseOn', function() {
-    var Modification = Type({Append: [Number], Remove: [Number], Sort: []});
+    var Modification = Type({Append: [Number], Remove: [Number], Slice: [Number, Number], Sort: []});
     var update = Modification.caseOn({
-      Append: function(number, list) { return list.concat([number]); },
+      Append: function(number, list) {
+	return list.concat([number]);
+      },
       Remove: function(number, list) {
         var idx = list.indexOf(number);
         return list.slice(0, idx).concat(list.slice(idx+1));
       },
-      Sort: function(list) { return list.sort(); },
+      Slice: function(begin, end, list) { return list.slice(begin, end); },
+      Sort: function(list) { return list.sort(); }
     });
     it('passes argument along to case functions', function() {
       assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
       assert.deepEqual(update(Modification.Remove(2), [1, 2, 3, 4]), [1, 3, 4]);
+      assert.deepEqual(update(Modification.Slice(1, 4), [1, 2, 3, 4, 5]), [2, 3, 4]);
       assert.deepEqual(update(Modification.Sort(), [1, 3, 2]), [1, 2, 3]);
     });
     it('partially applied to same action does not affect each other', function() {
@@ -131,9 +187,9 @@ describe('union type', function() {
   });
   describe('caseOn _', function() {
     var Action = Type({Jump: [], Move: [Number]});
-    var Context = {x: 1, y: 2}
+    var Context = {x: 1, y: 2};
     var update = Action.caseOn({
-      _: function(context) { return context; },
+      _: function(context) { return context; }
     });
     it('does not extract fields when matching _', function() {
       assert.deepEqual(update(Action.Jump(), Context), Context);
@@ -154,6 +210,15 @@ describe('union type', function() {
         Nil: function() { return 'Nil'; }
       });
       assert.equal(toString(list), '1 : 2 : 3 : Nil');
+    });
+  });
+  describe('iterator support', () => {
+    it('is can be destructured like array', () => {
+      var {Point, PointOf} = Type({Point: {x: Number, y: Number, z: Number}});
+      var p1 = PointOf({x: 1, y: 2, z: 3});
+      var p2 = Point(1, 2, 3);
+      var [x, y, z] = p1;
+      assert.deepEqual([x, y, z], [1, 2, 3]);
     });
   });
 });
