@@ -30,7 +30,7 @@ if (process.env.NODE_ENV !== 'production') {
       v = args[i];
       validator = mapConstrToFn(group, validators[i]);
       if (process.env.NODE_ENV !== 'production' &&
-	  (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
+          (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
           (typeof validator !== 'function' || !validator(v))) {
         throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
       }
@@ -109,7 +109,7 @@ function createIterator() {
     next: function() {
       var keys = this.val.keys;
       return this.idx === keys.length
-	? {done: true}
+        ? {done: true}
         : {value: this.val[keys[this.idx++]]};
     }
   };
