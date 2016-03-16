@@ -12,6 +12,14 @@ describe('union type', function() {
     var Point = Type({Point: [isNumber, isNumber]});
     assert.equal('function', typeof Point.Point);
   });
+  it('type can be used with instanceof', function() {
+    var Point = Type({Point: [isNumber, isNumber]});
+    assert.equal(Point.Point(4,2) instanceof Point, true);
+  });
+  it('constructor can be used with instanceof', function() {
+    var Point = Type({Point: [isNumber, isNumber]});
+    assert.equal(Point.Point(4,2) instanceof Point.Point, true);
+  });
   it('constructors create object with fields in array', function() {
     var Point = Type({Point: [isNumber, isNumber]});
     var point = Point.Point(5, 10);
