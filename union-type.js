@@ -58,7 +58,7 @@ function constructor(group, name, fields) {
     validators = extractValues(keys, fields);
   }
   function construct() {
-    var val = Object.create(group.prototype), i;
+    var val = Object.create(group[name].prototype), i;
     val.keys = keys;
     val.name = name;
     if (Type.check === true) {
@@ -70,11 +70,12 @@ function constructor(group, name, fields) {
     return val;
   }
   group[name] = curryN(keys.length, construct);
-  if (keys !== undefined) {
+  group[name].prototype = Object.create(group.prototype);
+  if (keys.length > 0 && !Array.isArray(fields)) {
     group[name+'Of'] = function(obj) {
       return construct.apply(undefined, extractValues(keys, obj));
     };
-  }
+  } 
 }
 
 function rawCase(type, cases, value, arg) {
@@ -114,7 +115,7 @@ function createIterator() {
 }
 
 function Type(desc) {
-  var key, res, obj = {};
+  var key, res, obj = function(){};
   obj.prototype = {};
   obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   obj.case = typeCase(obj);
