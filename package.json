@@ -1,6 +1,6 @@
 {
   "name": "union-type",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Union types for JavaScript",
   "main": "union-type.js",
   "directories": {
