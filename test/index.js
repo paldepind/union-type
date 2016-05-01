@@ -111,7 +111,7 @@ describe('union type', function() {
       assert.equal(just4[0], 4);
       var nothing = Maybe.Nothing();
       var alsoNothing = nothing.map(add(3));
-      assert.equal(alsoNothing.name, 'Nothing');
+      assert.equal(alsoNothing._name, 'Nothing');
     });
   });
   describe('case', function() {

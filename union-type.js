@@ -38,8 +38,8 @@ var validate = function(group, validators, name, args) {
 
 function valueToArray(value) {
   var i, arr = [];
-  for (i = 0; i < value.keys.length; ++i) {
-    arr.push(value[value.keys[i]]);
+  for (i = 0; i < value._keys.length; ++i) {
+    arr.push(value[value._keys[i]]);
   }
   return arr;
 }
@@ -59,8 +59,8 @@ function constructor(group, name, fields) {
   }
   function construct() {
     var val = Object.create(group.prototype), i;
-    val.keys = keys;
-    val.name = name;
+    val._keys = keys;
+    val._name = name;
     if (Type.check === true) {
       validate(group, validators, name, arguments);
     }
@@ -79,7 +79,7 @@ function constructor(group, name, fields) {
 
 function rawCase(type, cases, value, arg) {
   var wildcard = false;
-  var handler = cases[value.name];
+  var handler = cases[value._name];
   if (handler === undefined) {
     handler = cases['_'];
     wildcard = true;
@@ -105,7 +105,7 @@ function createIterator() {
     idx: 0,
     val: this,
     next: function() {
-      var keys = this.val.keys;
+      var keys = this.val._keys;
       return this.idx === keys.length
         ? {done: true}
         : {value: this.val[keys[this.idx++]]};
