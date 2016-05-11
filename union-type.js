@@ -127,4 +127,19 @@ function Type(desc) {
 
 Type.check = true;
 
+Type.ListOf = function (T) {
+  var ListOf = Type({List:[Array], HeadTail:[T, Array]});
+  var validate = ListOf.case({
+    List: function (array) {
+      return array.length == 0 || validate(ListOf.HeadTail(array[0],array.slice(1)));
+    },
+    HeadTail: function (head, tail) {
+      return validate(ListOf.List(tail));
+    }
+  });
+  return function(array) {
+    return validate(ListOf.List(array));
+  }
+}
+
 module.exports = Type;

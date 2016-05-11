@@ -61,6 +61,18 @@ describe('union type', function() {
       }, /wrong value/);
     });
   });
+  it('array of types', function() {
+    var Point = Type({Point: [Number, Number]});
+    var Shape = Type({Shape: [Type.ListOf(Point)]}).Shape;
+    assert.throws(function(){
+      Shape([1,Point.Point(1,2),3]);
+    }, /wrong value/);
+    assert.throws(function(){
+      Shape([Point.Point(1,2), Point.Point('3',1)]);
+    }, /wrong value/)
+    Shape([Point.Point(1,2), Point.Point(1,2), Point.Point(1,2)]);
+    Shape([]);
+  });
   it('nest types', function() {
     var Point = Type({Point: [isNumber, isNumber]});
     var Shape = Type({Circle: [Number, Point],
