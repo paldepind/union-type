@@ -25,6 +25,9 @@ var numToStr = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh
 
 var validate = function(group, validators, name, args) {
   var validator, v, i;
+  if (args.length > validators.length) {
+    throw new TypeError('too many arguments to constructor ' + name);
+  }
   for (i = 0; i < args.length; ++i) {
     v = args[i];
     validator = mapConstrToFn(group, validators[i]);
