@@ -132,7 +132,7 @@ Type.Record = function (desc) {
   const type = Type({
     record: desc
   })
-  type.create = type.recordOf
+  type.from = type.recordOf
   return type
 }
 
@@ -141,7 +141,7 @@ Type.New = function (wrappedType) {
   const type = Type({
     newType: { value: wrappedType }
   })
-  type.create = value => type.newTypeOf({value})
+  type.from = value => type.newTypeOf({value})
   return type
 }
 

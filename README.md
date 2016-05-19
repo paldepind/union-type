@@ -141,10 +141,10 @@ If you used the `Type.Record` syntax to declare the type, e.g.
 var Point = Type.Record({x: Number, y: Number});
 ```
 
-then you can construct an instance of the type using `.create({...})`:
+then you construct an instance of the type using `.from({...})`:
 
 ```javascript
-var p = Point.create({x: 1, y: 1});
+var p = Point.from({x: 1, y: 1});
 ```
 
 Alternatively records can be constructed in the same way as regular types.
@@ -304,9 +304,9 @@ Newtypes are similar to type aliases except they cannot be used interchangeably 
 var ID = Type.New(String);
 ```
 
-Then construct an instance of it using `.create()`:
+Then construct an instance of it using `.from()`:
 ```javascript
-var id = ID.create('2ialp7b4lu');
+var id = ID.from('2ialp7b4lu');
 ```
 
 The wrapped value is accessible using `id.value`:
