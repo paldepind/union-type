@@ -115,10 +115,14 @@ function createIterator() {
 
 function Type(desc) {
   var key, res, obj = {};
-  obj.prototype = {};
-  obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   obj.case = typeCase(obj);
   obj.caseOn = caseOn(obj);
+  
+  obj.prototype = {};
+  obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
+  obj.prototype.case = function (cases) { return obj.case(cases, this); }
+  obj.prototype.caseOn = function (cases) { return obj.caseOn(cases, this); }
+  
   for (key in desc) {
     res = constructor(obj, key, desc[key]);
   }
