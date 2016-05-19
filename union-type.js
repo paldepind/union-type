@@ -35,7 +35,7 @@ var validate = function(group, validators, name, args) {
         (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
         (typeof validator !== 'function' || !validator(v))) {
       var strVal = typeof v === 'string' ? "'" + v + "'" : v; // put the value in quotes if it's a string
-      throw new TypeError('bad value ' + strVal + ' passed to ' + numToStr[i] + ' argument of constructor ' + name);
+      throw new TypeError('bad value ' + strVal + ' passed as ' + numToStr[i] + ' argument to constructor ' + name);
     }
   }
 };
