@@ -84,6 +84,15 @@ describe('union type', function() {
       assert.equal(p.x, 1);
       assert.equal(p.y, 2);
     });
+    it('can use Type.Record to create record types', function() {
+      var Point = Type.Record({x: Number, y: Number});
+    });
+    it('can create Type.Record values', function() {
+      var Point = Type.Record({x: Number, y: Number});
+      var p = Point.from({x: 1, y: 2});
+      assert.equal(p.x, 1);
+      assert.equal(p.y, 2);
+    });
     it('can create values from arguments', function() {
       var Point = Type({Point: {x: Number, y: Number}});
       var p = Point.Point(1, 2);
@@ -95,6 +104,26 @@ describe('union type', function() {
       var p = Point.Point(1, 2);
       assert.equal(p[0], undefined);
       assert.equal(p[1], undefined);
+    });
+  });
+  describe('newtypes', function() {
+    it('can create a newtype, wrap and unwrap a value', function() {
+      var Age = Type.New(Number);
+      var myAge = Age.from(35);
+      assert.equal(35, myAge.value);
+    });
+    it('cannot be substituted with its wrapped type', function() {
+      var Age = Type.New(Number);
+      var Person = Type.Record({
+        name: String,
+        age: Age
+      });
+      assert.throws(function() {
+        Person.from({
+          name: 'Jimmy',
+          age: 34
+        });
+      }, /wrong value/);
     });
   });
   describe('type methods', function() {
