@@ -225,6 +225,31 @@ const advancePlayerOnlyUp = (action, player) =>
   });
 ```
 
+In addition to the static `case` and `caseOn` functions on a type, instances of
+a type have `case` and `caseOf` methods, so for example
+
+```javascript
+Action.case({
+  Up: () => ({x: player.x, y: player.y - 1}),
+  Right: () => ({x: player.x + 1, y: player.y}),
+  Down: () => ({x: player.x, y: player.y + 1}),
+  Left: () => ({x: player.x - 1, y: player.y}),
+  _: () => player,
+}, action);
+```
+
+could equivalently be written as
+
+```javascript
+action.case({
+  Up: () => ({x: player.x, y: player.y - 1}),
+  Right: () => ({x: player.x + 1, y: player.y}),
+  Down: () => ({x: player.x, y: player.y + 1}),
+  Left: () => ({x: player.x - 1, y: player.y}),
+  _: () => player,
+});
+```
+
 ### Extracting fields from a union type
 
 If your type was defined using the record syntax you can access the fields

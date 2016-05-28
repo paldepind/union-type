@@ -196,6 +196,13 @@ describe('union type', function() {
       assert.deepEqual(update(Action.Move(5), Context), Context);
     });
   });
+  describe('case instance method', function() {
+    var Maybe = Type({Just: [Number], Nothing: []});
+    assert.equal(3, Maybe.Just(1).case({
+      Nothing: function () { return 'oops'; },
+      Just: function (n) { return n + 2; }
+    }));
+  });
   describe('recursive data types', function() {
     var List = Type({Nil: [], Cons: [T, List]});
     it('can create single element list', function() {
