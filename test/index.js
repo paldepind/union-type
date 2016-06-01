@@ -66,12 +66,15 @@ describe('union type', function() {
     var Shape = Type({Shape: [Type.ListOf(Point)]}).Shape;
     assert.throws(function(){
       Shape([1,Point.Point(1,2),3]);
-    }, /wrong value/);
+    }, /wrong value 1 passed to location first in List/);
     assert.throws(function(){
       Shape([Point.Point(1,2), Point.Point('3',1)]);
-    }, /wrong value/)
-    Shape([Point.Point(1,2), Point.Point(1,2), Point.Point(1,2)]);
+    }, /wrong value 3 passed to location first in Point/);
+    Shape([Point.Point(1,2), Point.Point(1,2)]);
     Shape([]);
+    assert.throws(function(){
+      Shape("not a List")
+    }, /wrong value not a List passed to location first in List/);
   });
   it('nest types', function() {
     var Point = Type({Point: [isNumber, isNumber]});
