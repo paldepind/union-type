@@ -133,7 +133,7 @@ Type.ListOf = function (T) {
   var validate = List.case({
     List: function (array) {
       try{
-        for(var n in array) {
+        for(var n = 0; n < array.length; n++) {
           innerType(array[n])
         }
       } catch (e) {
