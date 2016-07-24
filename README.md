@@ -113,8 +113,8 @@ If you in any way pass a field value that does not match the specification a
 helpful error is thrown.
 
 ```javascript
-var p = Point.Point('bad', 4);
-// throws TypeError: wrong value bad passed to location 0 in Point
+var p = Point.Point('foo', 4);
+// throws TypeError: bad value 'foo' passed to first argument of constructor Point
 ```
 
 As mentioned earlier you can also define records using object descriptions:

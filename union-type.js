@@ -25,13 +25,18 @@ var numToStr = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh
 
 var validate = function(group, validators, name, args) {
   var validator, v, i;
+  if (args.length > validators.length) {
+    throw new TypeError('too many arguments supplied to constructor ' + name
+      + ' (expected ' + validators.length + ' but got ' + args.length + ')');
+  }
   for (i = 0; i < args.length; ++i) {
     v = args[i];
     validator = mapConstrToFn(group, validators[i]);
     if (Type.check === true &&
         (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
         (typeof validator !== 'function' || !validator(v))) {
-      throw new TypeError('wrong value ' + v + ' passed to location ' + numToStr[i] + ' in ' + name);
+      var strVal = typeof v === 'string' ? "'" + v + "'" : v; // put the value in quotes if it's a string
+      throw new TypeError('bad value ' + strVal + ' passed as ' + numToStr[i] + ' argument to constructor ' + name);
     }
   }
 };

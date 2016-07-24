@@ -44,7 +44,13 @@ describe('union type', function() {
       var Age = Type({Age: [Number]});
       assert.throws(function() {
         Age.Age('12');
-      }, /wrong value/);
+      }, /bad value/);
+    });
+    it('throws on too many arguments', function() {
+      var Foo = Type({Foo: [Number, Number]});
+      assert.throws(function() {
+        Foo.Foo(3, 3, 3);
+      }, /too many arguments/);
     });
     it('accepts boolean true with primitive constructors', function() {
       var Exists = Type({Exists: [Boolean]});
@@ -58,7 +64,7 @@ describe('union type', function() {
       var Exists = Type({Exists: [Boolean]});
       assert.throws(function() {
         Exists.Exists('12');
-      }, /wrong value/);
+      }, /bad value/);
     });
   });
   it('nest types', function() {
