@@ -53,6 +53,11 @@ possible to define records using object descriptions:
 var Point = Type({Point: {x: Number, y: Number}});
 ```
 
+If your type only has one constructor, as is the case here, you can use `Type.Record` to define essentially the same thing without having to name the lone constructor:
+```javascript
+var Point = Type.Record({x: Number, y: Number});
+```
+
 ### Instance methods
 
 Furthermore it is possible to add instance methods. A Maybe type with a map
@@ -134,6 +139,18 @@ Alternatively records can be constructed in the same way as regular types.
 
 ```javascript
 var p = Point.Point(1, 1);
+```
+
+If you used the `Type.Record` syntax to declare the type, e.g.
+
+```javascript
+var Point = Type.Record({x: Number, y: Number});
+```
+
+then you construct an instance of the type using `.from({...})`:
+
+```javascript
+var p = Point.from({x: 1, y: 1});
 ```
 
 ### Switching on union types
@@ -302,6 +319,24 @@ var toString = List.case({
 
 var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())));
 console.log(toString(list)); // => '1 : 2 : 3 : Nil'
+```
+
+### Newtypes
+
+Newtypes are similar to type aliases except they cannot be used interchangeably with the type they are based on; they are a new, distinct type. You can create a newtype like so:
+
+```javascript
+var ID = Type.New(String);
+```
+
+Then construct an instance of it using `.from()`:
+```javascript
+var id = ID.from('2ialp7b4lu');
+```
+
+The wrapped value is accessible using `id.value`:
+```javascript
+var stringValue = id.value;
 ```
 
 ### Disabling type checking

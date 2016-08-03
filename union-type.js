@@ -136,4 +136,22 @@ function Type(desc) {
 
 Type.check = true;
 
+// Simplified syntax for creating records
+Type.Record = function (desc) {
+  const type = Type({
+    record: desc
+  })
+  type.from = type.recordOf
+  return type
+}
+
+// Newtypes -- types isomorphic to but distinct from another type
+Type.New = function (wrappedType) {
+  const type = Type({
+    newType: { value: wrappedType }
+  })
+  type.from = value => type.newTypeOf({value})
+  return type
+}
+
 module.exports = Type;
