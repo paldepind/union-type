@@ -1,5 +1,5 @@
 var curryN = require('ramda/src/curryN');
-
+var compose = require('ramda/src/compose');
 var isString = function(s) { return typeof s === 'string'; };
 var isNumber = function(n) { return typeof n === 'number'; };
 var isBoolean = function(b) { return typeof b === 'boolean'; };
@@ -135,5 +135,23 @@ function Type(desc) {
 }
 
 Type.check = true;
+
+Type.ListOf = function (T) {
+  var List = Type({List:[Array]});
+  var innerType = Type({T: [T]}).T;
+  var validate = List.case({
+    List: function (array) {
+      try{
+        for(var n = 0; n < array.length; n++) {
+          innerType(array[n])
+        }
+      } catch (e) {
+        throw TypeError('wrong value '+array[n]+' passed to location '+numToStr[n]+' in List')
+      }
+      return true;
+    }
+  });
+  return compose(validate, List.List);
+}
 
 module.exports = Type;
