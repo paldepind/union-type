@@ -96,10 +96,12 @@ function rawCase(type, cases, value, arg) {
       throw new Error('non-exhaustive patterns in a function');
     }
   }
-  var args = wildcard === true ? [arg]
-           : arg !== undefined ? valueToArray(value).concat([arg])
-           : valueToArray(value);
-  return handler.apply(undefined, args);
+  if (handler) {
+    var args = wildcard === true ? [arg]
+             : arg !== undefined ? valueToArray(value).concat([arg])
+             : valueToArray(value);
+    return handler.apply(undefined, args);
+  }
 }
 
 var typeCase = curryN(3, rawCase);
