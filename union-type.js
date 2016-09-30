@@ -96,7 +96,7 @@ function rawCase(type, cases, value, arg) {
       throw new Error('non-exhaustive patterns in a function');
     }
   }
-  if (handler) {
+  if (handler !== undefined) {
     var args = wildcard === true ? [arg]
              : arg !== undefined ? valueToArray(value).concat([arg])
              : valueToArray(value);
