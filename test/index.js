@@ -180,6 +180,15 @@ describe('union type', function() {
         fn(Action.Rotate(30));
       }, /exhaustive/);
     });
+    it('does not throw with Type.check = false if no case handler found', function() {
+      Type.check = false;
+      Action.case({
+        Translate: function(x, y) {
+          return x + y;
+        }
+      }, Action.Rotate(90));
+      Type.check = true;
+    });
   });
   describe('caseOn', function() {
     var Modification = Type({Append: [Number], Remove: [Number], Slice: [Number, Number], Sort: []});
