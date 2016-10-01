@@ -36,7 +36,7 @@ var validate = function(group, validators, name, args) {
         (validator.prototype === undefined || !validator.prototype.isPrototypeOf(v)) &&
         (typeof validator !== 'function' || !validator(v))) {
       var strVal = typeof v === 'string' ? "'" + v + "'" : v; // put the value in quotes if it's a string
-      throw new TypeError('bad value ' + strVal + ' passed as ' + numToStr[i] + ' argument to constructor ' + name);
+      throw new TypeError('wrong value ' + strVal + ' passed as ' + numToStr[i] + ' argument to constructor ' + name);
     }
   }
 };
@@ -127,8 +127,8 @@ function Type(desc) {
   
   obj.prototype = {};
   obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
-  obj.prototype.case = function (cases) { return obj.case(cases, this); }
-  obj.prototype.caseOn = function (cases) { return obj.caseOn(cases, this); }
+  obj.prototype.case = function (cases) { return obj.case(cases, this); };
+  obj.prototype.caseOn = function (cases) { return obj.caseOn(cases, this); };
   
   for (key in desc) {
     res = constructor(obj, key, desc[key]);
@@ -143,17 +143,17 @@ Type.ListOf = function (T) {
   var innerType = Type({T: [T]}).T;
   var validate = List.case({
     List: function (array) {
-      try{
+      try {
         for(var n = 0; n < array.length; n++) {
-          innerType(array[n])
+          innerType(array[n]);
         }
       } catch (e) {
-        throw TypeError('wrong value '+array[n]+' passed to location '+numToStr[n]+' in List')
+        throw new TypeError('wrong value '+ array[n] + ' passed to location ' + numToStr[n] + ' in List');
       }
       return true;
     }
   });
   return compose(validate, List.List);
-}
+};
 
 module.exports = Type;

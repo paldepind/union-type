@@ -44,7 +44,7 @@ describe('union type', function() {
       var Age = Type({Age: [Number]});
       assert.throws(function() {
         Age.Age('12');
-      }, /bad value/);
+      }, /wrong value/);
     });
     it('throws on too many arguments', function() {
       var Foo = Type({Foo: [Number, Number]});
@@ -64,23 +64,23 @@ describe('union type', function() {
       var Exists = Type({Exists: [Boolean]});
       assert.throws(function() {
         Exists.Exists('12');
-      }, /bad value/);
+      }, /wrong value/);
     });
   });
   it('array of types', function() {
     var Point = Type({Point: [Number, Number]});
     var Shape = Type({Shape: [Type.ListOf(Point)]}).Shape;
-    assert.throws(function(){
-      Shape([1,Point.Point(1,2),3]);
+    assert.throws(function() {
+      Shape([1, Point.Point(1,2), 3]);
     }, /wrong value 1 passed to location first in List/);
-    assert.throws(function(){
-      Shape([Point.Point(1,2), Point.Point('3',1)]);
-    }, /wrong value 3 passed to location first in Point/);
-    Shape([Point.Point(1,2), Point.Point(1,2)]);
+    assert.throws(function() {
+      Shape([Point.Point(1, 2), Point.Point('3', 1)]);
+    }, /wrong value/);
+    Shape([Point.Point(1, 2), Point.Point(1, 2)]);
     Shape([]);
-    assert.throws(function(){
+    assert.throws(function() {
       Shape("not a List")
-    }, /wrong value not a List passed to location first in List/);
+    }, /wrong value/);
   });
   it('nest types', function() {
     var Point = Type({Point: [isNumber, isNumber]});
