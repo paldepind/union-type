@@ -13,8 +13,8 @@ associated with the possible values.
   * [Constructing a union type](#constructing-a-union-type)
   * [Switching on union types](#switching-on-union-types)
   * [Extracting fields from a union type](#extracting-fields-from-a-union-type)
-  * [Recursive union types](recursive-union-types)
-* [Author & license](author--license)
+  * [Recursive union types](#recursive-union-types)
+* [Author & license](#author--license)
 
 ## Tutorial
 
