@@ -74,7 +74,7 @@ function constructor(group, name, fields) {
     }
     return val;
   }
-  group[name] = curryN(keys.length, construct);
+  group[name] = keys.length === 0 ? construct() : curryN(keys.length, construct);
   if (keys !== undefined) {
     group[name+'Of'] = function(obj) {
       return construct.apply(undefined, extractValues(keys, obj));
@@ -124,12 +124,12 @@ function Type(desc) {
   var key, res, obj = {};
   obj.case = typeCase(obj);
   obj.caseOn = caseOn(obj);
-  
+
   obj.prototype = {};
   obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
   obj.prototype.case = function (cases) { return obj.case(cases, this); };
   obj.prototype.caseOn = function (cases) { return obj.caseOn(cases, this); };
-  
+
   for (key in desc) {
     res = constructor(obj, key, desc[key]);
   }
