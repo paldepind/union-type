@@ -118,6 +118,17 @@ describe('union type', function() {
       assert.equal(p[1], undefined);
     });
   });
+  describe('predicate', function() {
+    it('can use predicate to check type', function() {
+      var Maybe = Type({Just: [T], Nothing: []});
+      var OtherMaybe = Type({Just: [T]});
+      var just1 = Maybe.Just(1)
+      assert.equal(Maybe.isJust(just1), true);
+      assert.equal(Maybe.isNothing(just1), false);
+      assert.equal(Maybe.isNothing(just1), false);
+      assert.equal(OtherMaybe.isJust(just1), false);
+    })
+  });
   describe('type methods', function() {
     it('can add instance methods', function() {
       var Maybe = Type({Just: [T], Nothing: []});

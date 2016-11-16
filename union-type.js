@@ -75,6 +75,9 @@ function constructor(group, name, fields) {
     return val;
   }
   group[name] = curryN(keys.length, construct);
+  group['is' + name] = function(value) {
+    return group.prototype.isPrototypeOf(value) && name === value._name
+  }
   if (keys !== undefined) {
     group[name+'Of'] = function(obj) {
       return construct.apply(undefined, extractValues(keys, obj));
