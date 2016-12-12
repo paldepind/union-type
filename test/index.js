@@ -123,14 +123,14 @@ describe('union type', function() {
       var Maybe = Type({Just: [T], Nothing: []});
       Maybe.prototype.map = function(fn) {
         return Maybe.case({
-          Nothing: () => Maybe.Nothing(),
+          Nothing: () => Maybe.Nothing,
           Just: (v) => Maybe.Just(fn(v))
         }, this);
       };
       var just1 = Maybe.Just(1);
       var just4 = just1.map(add(3));
       assert.equal(just4[0], 4);
-      var nothing = Maybe.Nothing();
+      var nothing = Maybe.Nothing;
       var alsoNothing = nothing.map(add(3));
       assert.equal(alsoNothing._name, 'Nothing');
     });
@@ -207,7 +207,7 @@ describe('union type', function() {
       assert.deepEqual(update(Modification.Append(3), [1, 2]), [1, 2, 3]);
       assert.deepEqual(update(Modification.Remove(2), [1, 2, 3, 4]), [1, 3, 4]);
       assert.deepEqual(update(Modification.Slice(1, 4), [1, 2, 3, 4, 5]), [2, 3, 4]);
-      assert.deepEqual(update(Modification.Sort(), [1, 3, 2]), [1, 2, 3]);
+      assert.deepEqual(update(Modification.Sort, [1, 3, 2]), [1, 2, 3]);
     });
     it('partially applied to same action does not affect each other', function() {
       var append3 = update(Modification.Append(3));
@@ -222,7 +222,7 @@ describe('union type', function() {
       _: function(context) { return context; }
     });
     it('does not extract fields when matching _', function() {
-      assert.deepEqual(update(Action.Jump(), Context), Context);
+      assert.deepEqual(update(Action.Jump, Context), Context);
       assert.deepEqual(update(Action.Move(5), Context), Context);
     });
   });
@@ -236,10 +236,10 @@ describe('union type', function() {
   describe('recursive data types', function() {
     var List = Type({Nil: [], Cons: [T, List]});
     it('can create single element list', function() {
-      var list = List.Cons(1, List.Nil());
+      var list = List.Cons(1, List.Nil);
     });
     it('can get head', function() {
-      var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())));
+      var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil)));
       function head(list) { return list[0]; }
       function tail(list) { return list[1]; }
       var toString = List.case({

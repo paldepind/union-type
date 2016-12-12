@@ -63,12 +63,12 @@ var T = function () { return true; };
 var Maybe = Type({Just: [T], Nothing: []});
 Maybe.prototype.map = function(fn) {
   return Maybe.case({
-    Nothing: () => Maybe.Nothing(),
+    Nothing: () => Maybe.Nothing,
     Just: (v) => Maybe.Just(fn(v))
   }, this);
 };
 var just = Maybe.Just(1);
-var nothing = Maybe.Nothing();
+var nothing = Maybe.Nothing;
 nothing.map(add(1)); // => Nothing
 just.map(add(1)); // => Just(2)
 ```
@@ -209,7 +209,7 @@ const advancePlayer = Action.caseOn({
   _: (player) => player
 });
 
-advancePlayer(Action.Up(), player);
+advancePlayer(Action.Up, player);
 ```
 
 As a catch all you can supply a property with the key `_` to case. When a type
@@ -300,7 +300,7 @@ var toString = List.case({
   Nil: () => 'Nil',
 });
 
-var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil())));
+var list = List.Cons(1, List.Cons(2, List.Cons(3, List.Nil)));
 console.log(toString(list)); // => '1 : 2 : 3 : Nil'
 ```
 
