@@ -1,13 +1,13 @@
 {
   "name": "union-type",
-  "version": "0.3.3",
+  "version": "0.4.1",
   "description": "Union types for JavaScript",
   "main": "union-type.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
-    "ramda": "^0.19.1"
+    "ramda": "^0.24.0"
   },
   "devDependencies": {
     "babel": "^5.8.21",
