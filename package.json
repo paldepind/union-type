@@ -6,9 +6,7 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "ramda": "^0.24.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel": "^5.8.21",
     "browserify": "^10.2.4",

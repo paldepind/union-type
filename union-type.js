@@ -1,5 +1,3 @@
-var curryN = require('ramda/src/curryN');
-var compose = require('ramda/src/compose');
 var isString = function(s) { return typeof s === 'string'; };
 var isNumber = function(n) { return typeof n === 'number'; };
 var isBoolean = function(b) { return typeof b === 'boolean'; };
@@ -9,6 +7,23 @@ var isObject = function(value) {
 };
 var isFunction = function(f) { return typeof f === 'function'; };
 var isArray = Array.isArray || function(a) { return 'length' in a; };
+
+var curryN = function(length, fn) {
+  function _curry(args, received) {
+    var accumulated = args
+    for (var i = 0; i < received.length; i++) {
+      accumulated = accumulated.concat([received[i]]);
+    }
+
+    if (accumulated.length >= length) {
+      return fn.apply(this, accumulated);
+    } else {
+      return function() { return _curry(accumulated, arguments) };
+    }
+  }
+
+  return function() { return _curry([], arguments) };
+}
 
 var mapConstrToFn = function(group, constr) {
   return constr === String    ? isString
@@ -153,7 +168,7 @@ Type.ListOf = function (T) {
       return true;
     }
   });
-  return compose(validate, List.List);
+  return function() { return validate(List.List.apply(this, arguments)) };
 };
 
 module.exports = Type;
