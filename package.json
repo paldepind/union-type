@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "ramda": "^0.24.0"
+    "ramda": ">=0.5.x"
   },
   "devDependencies": {
     "babel": "^5.8.21",
