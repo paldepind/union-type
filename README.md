@@ -55,10 +55,12 @@ var Point = Type({Point: {x: Number, y: Number}});
 
 ### Instance methods
 
-Furthermore it is possible to add instance methods. A Maybe type with a map
+Furthermore it is possible to add instance methods. A [Maybe type](https://en.wikipedia.org/wiki/Option_type) with a map
 function could thus be defined as follows:
 
 ```javascript
+var add = first => second => first + second;  
+
 var T = function () { return true; };
 var Maybe = Type({Just: [T], Nothing: []});
 Maybe.prototype.map = function(fn) {
