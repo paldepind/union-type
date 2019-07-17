@@ -1,5 +1,6 @@
 var curryN = require('ramda/src/curryN');
 var compose = require('ramda/src/compose');
+var difference = require('ramda/src/difference');
 var isString = function(s) { return typeof s === 'string'; };
 var isNumber = function(n) { return typeof n === 'number'; };
 var isBoolean = function(b) { return typeof b === 'boolean'; };
@@ -82,7 +83,8 @@ function constructor(group, name, fields) {
   }
 }
 
-function rawCase(type, cases, value, arg) {
+function rawCase(type, allCases, cases, value, arg) {
+  var diff;
   var wildcard = false;
   var handler = cases[value._name];
   if (handler === undefined) {
@@ -92,8 +94,14 @@ function rawCase(type, cases, value, arg) {
   if (Type.check === true) {
     if (!type.prototype.isPrototypeOf(value)) {
       throw new TypeError('wrong type passed to case');
-    } else if (handler === undefined) {
-      throw new Error('non-exhaustive patterns in a function');
+    }
+
+    if (cases['_'] === undefined) {
+      diff = difference(allCases, Object.keys(cases))
+
+      if (diff.length) {
+        throw new Error('non-exhaustive patterns in a function. cases not covered: ' + diff.join(', '));
+      }
     }
   }
   if (handler !== undefined) {
@@ -104,8 +112,8 @@ function rawCase(type, cases, value, arg) {
   }
 }
 
-var typeCase = curryN(3, rawCase);
-var caseOn = curryN(4, rawCase);
+var typeCase = curryN(4, rawCase);
+var caseOn = curryN(5, rawCase);
 
 function createIterator() {
   return {
@@ -121,9 +129,7 @@ function createIterator() {
 }
 
 function Type(desc) {
-  var key, res, obj = {};
-  obj.case = typeCase(obj);
-  obj.caseOn = caseOn(obj);
+  var key, res, allCases = [], obj = {};
 
   obj.prototype = {};
   obj.prototype[Symbol ? Symbol.iterator : '@@iterator'] = createIterator;
@@ -132,7 +138,11 @@ function Type(desc) {
 
   for (key in desc) {
     res = constructor(obj, key, desc[key]);
+    allCases.push(key);
   }
+
+  obj.case = typeCase(obj, allCases);
+  obj.caseOn = caseOn(obj, allCases);
   return obj;
 }
 

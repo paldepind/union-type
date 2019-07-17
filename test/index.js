@@ -171,14 +171,13 @@ describe('union type', function() {
       });
       fn(Action.Rotate(30));
     });
-    it('throws if no case handler found', function() {
-      var called = false;
+    it('throws if cases are not exhaustive', function () {
       var fn = Action.case({
-        Translate: function() { throw new Error(); }
+        Rotate: function(n) { return n; }
       });
       assert.throws(function() {
-        fn(Action.Rotate(30));
-      }, /exhaustive/);
+        fn(Action.Rotate(30))
+      }, /cases not covered/);
     });
     it('does not throw with Type.check = false if no case handler found', function() {
       Type.check = false;
